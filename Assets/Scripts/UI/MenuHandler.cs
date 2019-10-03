@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class MenuHandler : MonoBehaviour, IDragHandler
 {
+    enum Mode { None, CreateNode, CreateLine};
+    Mode currentMode = Mode.None;
     // Start is called before the first frame update
     GameObject selectedNode = null;
     public GameObject nodePrefab;
@@ -12,6 +14,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     public GameObject canvasArea;
     Vector3[] corners = new Vector3[4];
     Vector2 totalDelta = new Vector2(0, 0);
+    GameObject createdLine = null;
     void Start()
     {
         canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
@@ -21,18 +24,50 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     // Update is called once per frame
     void Update()
     {
-        if (selectedNode != null)
+        switch (currentMode)
         {
-            selectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (Input.GetMouseButtonDown(0))
-            {
-                selectedNode.GetComponent<Image>().color = Color.white;
-                selectedNode = null;
-            }
+            case Mode.CreateNode:
+                selectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                if (Input.GetMouseButtonDown(0))
+                {
+                    selectedNode.GetComponent<Image>().color = Color.white;
+                    selectedNode = null;
+                    currentMode = Mode.None;
+                }
+                break;
+            case Mode.CreateLine:
+                if (selectedNode != null)
+                {
+                    Destroy(createdLine);
+                    GameObject tempLine = Instantiate(linePrefab, canvasArea.transform);
+                    LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
+                    tempRend.SetPositions(new Vector3[] { selectedNode.transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition) });
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (selectedNode == null)
+                    {
+                        foreach (TreeNode node in canvasArea.GetComponentsInChildren<TreeNode>())
+                        {
+                            print(node.GetComponent<RectTransform>().rect);
+                            print(Input.mousePosition);
+                            if (node.GetComponent<RectTransform>().rect.Contains(Input.mousePosition))
+                            {
+                                print("here");
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
         }
     }
     public void OnDrag(PointerEventData data)
     {
+        if (currentMode != Mode.None)
+        {
+            return;
+        }
         foreach (TreeNode node in  canvasArea.GetComponentsInChildren<TreeNode>())
         {
             node.transform.localPosition += (Vector3)data.delta;
@@ -50,8 +85,13 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         selectedNode = Instantiate(nodePrefab,canvasArea.transform);
         selectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         selectedNode.GetComponent<Image>().color = Color.cyan;
+        currentMode = Mode.CreateNode;
     }
 
+    public void CreateLine()
+    {
+        currentMode = Mode.CreateLine;
+    }
     void DrawLines()
     {
         for (int i = Mathf.RoundToInt(corners[0].x); i <= Mathf.RoundToInt(corners[3].x); i++)
