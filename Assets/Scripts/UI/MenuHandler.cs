@@ -38,25 +38,47 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             case Mode.CreateLine:
                 if (selectedNode != null)
                 {
-                    Destroy(createdLine);
-                    GameObject tempLine = Instantiate(linePrefab, canvasArea.transform);
-                    LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
+                    LineRenderer tempRend = createdLine.GetComponent<LineRenderer>();
                     tempRend.SetPositions(new Vector3[] { selectedNode.transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition) });
                 }
                 if (Input.GetMouseButtonDown(0))
                 {
                     if (selectedNode == null)
                     {
-                        foreach (TreeNode node in canvasArea.GetComponentsInChildren<TreeNode>())
+                        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
                         {
-                            print(node.GetComponent<RectTransform>().rect);
-                            print(Input.mousePosition);
-                            if (node.GetComponent<RectTransform>().rect.Contains(Input.mousePosition))
+                            if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
                             {
-                                print("here");
+                                selectedNode = node.gameObject;
+                                createdLine = Instantiate(linePrefab, canvasArea.transform);
                                 break;
                             }
                         }
+                    } else
+                    {
+                        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
+                        {
+                            if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                            {
+                                if (node == selectedNode)
+                                {
+                                    break;
+                                }
+                                LineRenderer tempRend = createdLine.GetComponent<LineRenderer>();
+                                tempRend.SetPositions(new Vector3[] { selectedNode.transform.position, node.transform.position });
+                                createdLine = null;
+                                currentMode = Mode.None;
+                                break;
+                            }
+                        }
+                    }
+                } else if (Input.GetMouseButtonDown(1))
+                {
+                    if (createdLine != null)
+                    {
+                        Destroy(createdLine);
+                        createdLine = null;
+                        currentMode = Mode.None;
                     }
                 }
                 break;
@@ -68,9 +90,14 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             return;
         }
-        foreach (TreeNode node in  canvasArea.GetComponentsInChildren<TreeNode>())
+        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
         {
             node.transform.localPosition += (Vector3)data.delta;
+        }
+        foreach (LineRenderer line in canvasArea.GetComponentsInChildren<LineRenderer>())
+        {
+            line.SetPosition(0,line.GetPosition(0) + (Vector3)data.delta);
+            line.SetPosition(1, line.GetPosition(1) + (Vector3)data.delta);
         }
         totalDelta += data.delta;
         foreach (Transform child in canvasArea.transform.Find("Grid"))
