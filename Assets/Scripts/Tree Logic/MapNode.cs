@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class MapNode: MonoBehaviour
 {
-    List<MapNode> Connections = new List<MapNode>();
-    string data;
+    public List<MapNode> Connections = new List<MapNode>();
+    public string data;
 }

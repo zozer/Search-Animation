@@ -68,6 +68,8 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                                 tempRend.SetPositions(new Vector3[] { selectedNode.transform.position, node.transform.position });
                                 createdLine = null;
                                 currentMode = Mode.None;
+                                selectedNode.GetComponent<MapNode>().Connections.Add(node);
+                                selectedNode = null;
                                 break;
                             }
                         }
@@ -90,15 +92,32 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             return;
         }
+        foreach (LineRenderer line in canvasArea.GetComponentsInChildren<LineRenderer>())
+        {
+            if (line.transform.parent == canvasArea.transform)
+            {
+                Destroy(line.gameObject);
+            }
+        }
         foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
         {
             node.transform.localPosition += (Vector3)data.delta;
         }
-        foreach (LineRenderer line in canvasArea.GetComponentsInChildren<LineRenderer>())
+        List<(MapNode, MapNode)> tempList = new List<(MapNode, MapNode)>();
+        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
         {
-            line.SetPosition(0,line.GetPosition(0) + (Vector3)data.delta);
-            line.SetPosition(1, line.GetPosition(1) + (Vector3)data.delta);
+            foreach(MapNode child in node.Connections)
+            {
+                if (!tempList.Contains((child,node)))
+                {
+                    tempList.Add((node, child));
+                    GameObject tempLine = Instantiate(linePrefab, canvasArea.transform);
+                    LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
+                    tempRend.SetPositions(new Vector3[] { node.transform.position, child.transform.position });
+                }
+            }
         }
+
         totalDelta += data.delta;
         foreach (Transform child in canvasArea.transform.Find("Grid"))
         {
