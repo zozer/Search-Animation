@@ -5,13 +5,26 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class MenuHandler : MonoBehaviour, IDragHandler
 {
-    enum Mode { None, CreateNode, CreateLine};
+    enum Mode { None, CreateNode, CreateLine, DestoryNode, DestoryLine};
     Mode currentMode = Mode.None;
     // Start is called before the first frame update
-    GameObject selectedNode = null;
+    GameObject _selectedNode;
+    GameObject selectedNode { get => _selectedNode;
+        set {
+            if (value is null)
+            {
+                _selectedNode.GetComponent<Image>().color = Color.white;
+                
+            } else
+            {
+                value.GetComponent<Image>().color = Color.yellow;
+            }
+            _selectedNode = value;
+        } }
     public GameObject nodePrefab;
     public GameObject linePrefab;
     public GameObject canvasArea;
+    public GameObject menuArea;
     Vector3[] corners = new Vector3[4];
     Vector2 totalDelta = new Vector2(0, 0);
     GameObject createdLine = null;
@@ -24,6 +37,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     // Update is called once per frame
     void Update()
     {
+        MapNode currentNode = null;
         switch (currentMode)
         {
             case Mode.CreateNode:
@@ -43,46 +57,108 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 }
                 if (Input.GetMouseButtonDown(0))
                 {
-                    if (selectedNode == null)
+
+                    foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
                     {
-                        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
+                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
                         {
-                            if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
-                            {
-                                selectedNode = node.gameObject;
-                                createdLine = Instantiate(linePrefab, canvasArea.transform);
-                                break;
-                            }
-                        }
-                    } else
-                    {
-                        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
-                        {
-                            if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
-                            {
-                                if (node == selectedNode)
-                                {
-                                    break;
-                                }
-                                LineRenderer tempRend = createdLine.GetComponent<LineRenderer>();
-                                tempRend.SetPositions(new Vector3[] { selectedNode.transform.position, node.transform.position });
-                                createdLine = null;
-                                currentMode = Mode.None;
-                                selectedNode.GetComponent<MapNode>().Connections.Add(node);
-                                selectedNode = null;
-                                break;
-                            }
+                            currentNode = node;
+                            break;
                         }
                     }
-                } else if (Input.GetMouseButtonDown(1))
+                    if (currentNode is null)
+                    {
+                        break;
+                    }
+                    if (selectedNode == null)
+                    {
+                        selectedNode = currentNode.gameObject;
+                        createdLine = Instantiate(linePrefab, canvasArea.transform);
+                        createdLine.GetComponent<MapLine>().connector = (currentNode, null);
+                        break;
+                    }
+                    else
+                    {
+                        if (currentNode == selectedNode)
+                        {
+                            break;
+                        }
+                        LineRenderer tempRend = createdLine.GetComponent<LineRenderer>();
+                        tempRend.GetComponent<MapLine>().connector.Item2 = currentNode;
+                        tempRend.SetPositions(new Vector3[] { selectedNode.transform.position, currentNode.transform.position });
+                        createdLine = null;
+                        selectedNode.GetComponent<MapNode>().Connections.Add(currentNode);
+                        selectedNode = null;
+                        break;
+                    }
+                }
+                else if (Input.GetMouseButtonDown(1))
                 {
                     if (createdLine != null)
                     {
                         Destroy(createdLine);
                         createdLine = null;
-                        currentMode = Mode.None;
                     }
                 }
+                break;
+            case Mode.DestoryNode:
+                if (Input.GetMouseButtonDown(0))
+                {
+                    foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
+                    {
+                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                        {
+                            currentNode = node;
+                            break;
+                        }
+                    }
+                    if (currentNode is null)
+                    {
+                        break;
+                    }
+                    foreach (MapLine line in canvasArea.GetComponentsInChildren<MapLine>())
+                    {
+                        if (line.connector.Item1 == currentNode || line.connector.Item2 == currentNode)
+                        {
+                            Destroy(line.gameObject);
+                        }
+                    }
+                    Destroy(currentNode.gameObject);
+                }
+                break;
+            case Mode.DestoryLine:
+                if (Input.GetMouseButtonDown(0))
+                {
+                    foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
+                    {
+                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                        {
+                            currentNode = node;
+                            break;
+                        }
+                    }
+                    if (currentNode is null)
+                    {
+                        break;
+                    }
+                    if (selectedNode is null)
+                    {
+                        selectedNode = currentNode.gameObject;
+                    } else
+                    {
+                        foreach (MapLine line in canvasArea.GetComponentsInChildren<MapLine>())
+                        {
+                            if ((line.connector.Item1 == selectedNode.GetComponent<MapNode>() && line.connector.Item2 == currentNode) ||
+                                (line.connector.Item2 == selectedNode.GetComponent<MapNode>() && line.connector.Item1 == currentNode)
+                                )
+                            {
+                                Destroy(line.gameObject);
+                            }
+                        }
+                        selectedNode = null;
+                    }
+                }
+                
                 break;
         }
     }
@@ -132,23 +208,50 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         selectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         selectedNode.GetComponent<Image>().color = Color.cyan;
         currentMode = Mode.CreateNode;
+        UpdateButtonStatus();
     }
 
     public void CreateLine()
     {
-        currentMode = Mode.CreateLine;
+        currentMode = (currentMode == Mode.CreateLine) ? Mode.None : Mode.CreateLine;
+        UpdateButtonStatus();
     }
+
+    public void DestroyNode()
+    {
+        currentMode = (currentMode == Mode.DestoryNode) ? Mode.None : Mode.DestoryNode;
+        UpdateButtonStatus();
+    }
+
+    public void DestroyLine()
+    {
+        currentMode = (currentMode == Mode.DestoryLine) ? Mode.None : Mode.DestoryLine;
+        UpdateButtonStatus();
+    }
+
+    public void UpdateButtonStatus()
+    {
+        menuArea.transform.Find("LineButton").GetComponent<Image>().color =
+            (currentMode == Mode.CreateLine) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+        menuArea.transform.Find("DeleteNodeButton").GetComponent<Image>().color =
+            (currentMode == Mode.DestoryNode) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+        menuArea.transform.Find("DeleteLineButton").GetComponent<Image>().color =
+            (currentMode == Mode.DestoryLine) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+    }
+
     void DrawLines()
     {
         for (int i = Mathf.RoundToInt(corners[0].x); i <= Mathf.RoundToInt(corners[3].x); i++)
         {
             GameObject tempLine = Instantiate(linePrefab, canvasArea.transform.Find("Grid"));
+            Destroy(tempLine.GetComponent<MapLine>());
             LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
             tempRend.SetPositions(new Vector3[] { new Vector3(i, corners[0].y, 0), new Vector3(i, corners[1].y, 0) });
         }
         for (int j = Mathf.RoundToInt(corners[0].y); j < Mathf.RoundToInt(corners[1].y); j++)
         {
             GameObject tempLine = Instantiate(linePrefab, canvasArea.transform.Find("Grid"));
+            Destroy(tempLine.GetComponent<MapLine>());
             LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
             tempRend.SetPositions(new Vector3[] { new Vector3(corners[0].x, j, 0), new Vector3(corners[3].x, j, 0) });
         }
@@ -167,12 +270,14 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         for (float i = baseDraw[0]; i <= Mathf.RoundToInt(corners[3].x); i++)
         {
             GameObject tempLine = Instantiate(linePrefab, canvasArea.transform.Find("Grid"));
+            Destroy(tempLine.GetComponent<MapLine>());
             LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
             tempRend.SetPositions(new Vector3[] { new Vector3(i, corners[0].y, 0), new Vector3(i, corners[1].y, 0) });
         }
         for (float j = baseDraw[1]; j < Mathf.RoundToInt(corners[1].y); j++)
         {
             GameObject tempLine = Instantiate(linePrefab, canvasArea.transform.Find("Grid"));
+            Destroy(tempLine.GetComponent<MapLine>());
             LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
             tempRend.SetPositions(new Vector3[] { new Vector3(corners[0].x, j, 0), new Vector3(corners[3].x, j, 0) });
         }
