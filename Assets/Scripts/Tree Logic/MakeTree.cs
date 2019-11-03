@@ -69,7 +69,7 @@ public class MakeTree : MonoBehaviour
     //input:
     //start - starting node
     //goal - goal node
-    //current - to track the current node
+    //current - to track the current node - It must be same as the start at the beginning
     //history - history of nodes that had visited
     private void makeTree(MapNode start, MapNode goal, MapNode current, List<string> history)
     {
