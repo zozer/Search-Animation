@@ -472,6 +472,7 @@ MonoBehaviour:
   linePrefab: {fileID: 8724863242582070121, guid: 37fa2ca3d26980a499fff7c8f8a49f92,
     type: 3}
   canvasArea: {fileID: 116072785}
+  menuArea: {fileID: 561998517}
 --- !u!1 &644686666
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,7 +762,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 643788217}
-        m_MethodName: CreateNode
+        m_MethodName: DestroyNode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1208,7 +1209,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 643788217}
-        m_MethodName: CreateLine
+        m_MethodName: DestroyLine
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
