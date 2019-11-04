@@ -9,7 +9,7 @@ public class testTree : MonoBehaviour
     void Start()
     {
         MakeTree test = gameObject.AddComponent<MakeTree>();
-        test.createTest();
+        test.CreateTest();
     }
 
     // Update is called once per frame
