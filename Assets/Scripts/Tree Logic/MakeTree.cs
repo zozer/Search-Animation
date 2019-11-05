@@ -27,8 +27,8 @@ public class MakeTree : MonoBehaviour
         nodef.data = "f";
         goal.data = "g";
 
-        start.Connections.Add(nodea);
         start.Connections.Add(nodex);
+        start.Connections.Add(nodea);
 
         nodea.Connections.Add(start);
         nodea.Connections.Add(nodez);
@@ -57,24 +57,57 @@ public class MakeTree : MonoBehaviour
 
         List<string> history = new List<string>();
 
-        TraversingBM(start, goal, start, history);
+        TreeNode root = gameObject.AddComponent<TreeNode>();
+        root.data = start.data;
+
+        BuildBM(start, goal, start, history, root);
+
+        preorder(root);
     }
 
     /// <summary>
-    /// Traversal the map in a way that creating British Museum
+    /// test function that check if the node is there in the tree
+    /// </summary>
+    /// <param name="root"></param>
+    public static void preorder(TreeNode root)
+    {
+        Debug.Log(root.data);
+        for (int i = 0; i < root.children.Count; i++)
+        {
+            preorder(root.children[i]);
+        }
+    }
+
+    /// <summary>
+    /// sorting the list
+    /// </summary>
+    /// <param name="children"></param>
+    public static void order(List<MapNode> children)
+    {
+        children.Sort((child1, child2) => child1.data.CompareTo(child2.data));
+    }
+
+    /// <summary>
+    /// Traversing the map and creating tree for the British Museum
     /// </summary>
     /// <param name="start">A starting node of the map</param>
     /// <param name="goal">A destination node of the map</param>
-    /// <param name="current">A tracking node of the current traversal progress.(It must be 
-    /// the same as the starting node at the beginning)</param>
+    /// <param name="current">A tracking node of the current traversal progress.
+    /// (It must be the same as the starting node at the beginning)</param>
     /// <param name="history">history nodes that had visited in the path</param>
-    private void TraversingBM(MapNode start, MapNode goal, MapNode current, List<string> history)
+    /// <param name="root">root of the tree that we want to build</param>
+    private void BuildBM(MapNode start, MapNode goal, MapNode current, List<string> history, TreeNode root)
     {
-        Debug.Log(current.data);
-
-        if (current.data == goal.data)
+        //check if the node is leaf or goal
+        if (current .Connections.Count == 0 || current.data == goal.data)
         {
             return;
+        }
+
+        //sort the list to follow alphabetical order
+        if(current.Connections.Count > 1)
+        {
+            order(current.Connections);
         }
 
         int num = current.Connections.Count;
@@ -83,14 +116,22 @@ public class MakeTree : MonoBehaviour
 
         for (int i = 0; i < num; i++)
         {
+            //create new node for the tree
+            TreeNode child = gameObject.AddComponent<TreeNode>();
+            child.data = current.Connections[i].data;
+
             history.Add(currentData);
+
             string nextData = current.Connections[i].data;
 
+            //check if the node is visted or it is a start node
             if (currentData == startData || nextData != startData &&
                 history.Contains(nextData) == false)
             {
-                Debug.Log(currentData + " to " + nextData);
-                TraversingBM(start, goal, current.Connections[i], history);
+                child.parent = root;
+                root.children.Add(child);
+
+                BuildBM(start, goal, current.Connections[i], history, child);
             }
 
             history.Remove(currentData);
