@@ -13,11 +13,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         set {
             if (value is null)
             {
-                _selectedNode.GetComponent<Image>().color = Color.white;
+                _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
                 
             } else
             {
-                value.GetComponent<Image>().color = Color.yellow;
+                value.GetComponent<SpriteRenderer>().color = Color.yellow;
             }
             _selectedNode = value;
         } }
@@ -44,7 +44,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 selectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 if (Input.GetMouseButtonDown(0))
                 {
-                    selectedNode.GetComponent<Image>().color = Color.white;
+                    selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
                     selectedNode = null;
                     currentMode = Mode.None;
                 }
@@ -206,7 +206,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     {
         selectedNode = Instantiate(nodePrefab,canvasArea.transform);
         selectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        selectedNode.GetComponent<Image>().color = Color.cyan;
+        selectedNode.GetComponent<SpriteRenderer>().color = Color.cyan;
         currentMode = Mode.CreateNode;
         UpdateButtonStatus();
     }
