@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -49,27 +50,22 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 Vector2 temp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 temp.x = Mathf.RoundToInt(temp.x) + totalDelta.x;
                 temp.y = Mathf.RoundToInt(temp.y) + totalDelta.y;
-                if (totalDelta.x > 0)
-                {
-                    temp.x -= 1;
-                } else if (totalDelta.x < 0)
-                {
-                    temp.x += 1;
-                }
-                if (totalDelta.y > 0)
-                {
-                    temp.y -= 1;
-                }
-                else if (totalDelta.y < 0)
-                {
-                    temp.y += 1;
-                }
                 SelectedNode.transform.position = temp;
-                if (Input.GetMouseButtonDown(0))
+                if (canvasArea.GetComponentsInChildren<MapNode>().Any(
+                    e => (Vector2)e.GetComponent<RectTransform>().position == temp && e.gameObject != SelectedNode)
+                    ) 
                 {
-                    SelectedNode.GetComponent<SpriteRenderer>().color = Color.white;
-                    SelectedNode = null;
-                    currentMode = Mode.None;
+                    SelectedNode.GetComponent<SpriteRenderer>().color = Color.red;
+                } else
+                {
+                    SelectedNode.GetComponent<SpriteRenderer>().color = Color.cyan;
+                    if (Input.GetMouseButtonDown(0))
+                    {
+
+                        SelectedNode.GetComponent<SpriteRenderer>().color = Color.white;
+                        SelectedNode = null;
+                        currentMode = Mode.None;
+                    }
                 }
                 break;
             case Mode.CreateLine:
@@ -104,7 +100,13 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     }
                     else
                     {
-                        if (currentNode == SelectedNode)
+                        if (currentNode.gameObject == SelectedNode)
+                        {
+                            break;
+                        }
+                        if (canvasArea.GetComponentsInChildren<MapLine>().Any(
+                            e=>(e.connector.Item1 == SelectedNode.GetComponent<MapNode>() && e.connector.Item2 == currentNode)||
+                                (e.connector.Item1 == currentNode && e.connector.Item2 == SelectedNode.GetComponent<MapNode>())))
                         {
                             break;
                         }
@@ -123,6 +125,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     {
                         Destroy(createdLine);
                         createdLine = null;
+                        SelectedNode = null;
                     }
                 }
                 break;
