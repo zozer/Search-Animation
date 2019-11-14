@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MakeTree : MonoBehaviour
 {
+    public TreeNode root;
     /// <summary>
     /// For testing purpose only
     /// </summary>
@@ -57,7 +58,7 @@ public class MakeTree : MonoBehaviour
 
         List<string> history = new List<string>();
 
-        TreeNode root = gameObject.AddComponent<TreeNode>();
+        root = gameObject.AddComponent<TreeNode>();
         root.data = start.data;
 
         BuildBM(start, goal, start, history, root);
@@ -72,9 +73,9 @@ public class MakeTree : MonoBehaviour
     public static void preorder(TreeNode root)
     {
         Debug.Log(root.data);
-        for (int i = 0; i < root.children.Count; i++)
+        for (int i = 0; i < root.Children.Count; i++)
         {
-            preorder(root.children[i]);
+            preorder(root.Children[i]);
         }
     }
 
@@ -117,7 +118,7 @@ public class MakeTree : MonoBehaviour
         for (int i = 0; i < num; i++)
         {
             //create new node for the tree
-            TreeNode child = gameObject.AddComponent<TreeNode>();
+            TreeNode child = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
             child.data = current.Connections[i].data;
 
             history.Add(currentData);
@@ -128,8 +129,8 @@ public class MakeTree : MonoBehaviour
             if (currentData == startData || nextData != startData &&
                 history.Contains(nextData) == false)
             {
-                child.parent = root;
-                root.children.Add(child);
+                child.Parent = root;
+                root.AddChild(child);
 
                 BuildBM(start, goal, current.Connections[i], history, child);
             }

@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class testTree : MonoBehaviour
+public class TreeBuilder : MonoBehaviour
 {
-
     // Start is called before the first frame update
     void Start()
     {
-        MakeTree test = gameObject.AddComponent<MakeTree>();
-        test.CreateTest();
-        test.root.Debug();
+        
     }
 
     // Update is called once per frame
