@@ -72,7 +72,7 @@ public class MakeTree : MonoBehaviour
     /// <param name="root"></param>
     public static void preorder(TreeNode root)
     {
-        Debug.Log(root.data);
+        //Debug.Log(root.data);
         for (int i = 0; i < root.Children.Count; i++)
         {
             preorder(root.Children[i]);
@@ -118,7 +118,7 @@ public class MakeTree : MonoBehaviour
         for (int i = 0; i < num; i++)
         {
             //create new node for the tree
-            TreeNode child = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
+            TreeNode child = new GameObject("" + current.Connections[i].data, typeof(TreeNode)).GetComponent<TreeNode>();
             child.data = current.Connections[i].data;
 
             history.Add(currentData);
@@ -134,7 +134,10 @@ public class MakeTree : MonoBehaviour
 
                 BuildBM(start, goal, current.Connections[i], history, child);
             }
-
+            else
+            {
+                Destroy(child.gameObject);
+            }
             history.Remove(currentData);
         }
     }
