@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class MenuHandler : MonoBehaviour, IDragHandler
 {
-    enum Mode { None, CreateNode, CreateLine, DestoryNode, DestoryLine};
+    enum Mode { None, SelectNode, CreateNode, CreateLine, DestoryNode, DestoryLine};
     Mode currentMode = Mode.None;
     // Start is called before the first frame update
     GameObject _selectedNode;
@@ -39,13 +39,48 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
         DrawLines();
     }
-
+    void OnGUI()
+    {
+        Event e = Event.current;
+        if (currentMode == Mode.SelectNode)
+        {
+            if (e.type == EventType.KeyUp)
+            {
+                SelectedNode.GetComponent<MapNode>().Data = "" + (char)e.keyCode;
+            }
+        }
+    }
     // Update is called once per frame
     void Update()
     {
         MapNode currentNode = null;
         switch (currentMode)
         {
+            case Mode.None:
+                if (Input.GetMouseButtonDown(0))
+                {
+                    currentNode = GetMapNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                    if (!(currentNode is null))
+                    {
+                        SelectedNode = currentNode.gameObject;
+                        currentMode = Mode.SelectNode;
+                    }
+                }
+                break;
+            case Mode.SelectNode:
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (!SelectedNode.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                    {
+                        currentMode = Mode.None;
+                        SelectedNode = null;
+                    }
+                }
+                else if (Input.anyKeyDown)
+                {
+                    //SelectedNode.GetComponent<MapNode>().data = 
+                }
+                break;
             case Mode.CreateNode:
                 Vector2 temp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 temp.x = Mathf.RoundToInt(temp.x) + totalDelta.x;
@@ -76,15 +111,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 }
                 if (Input.GetMouseButtonDown(0))
                 {
-
-                    foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
-                    {
-                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
-                        {
-                            currentNode = node;
-                            break;
-                        }
-                    }
+                    currentNode = GetMapNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
                     if (currentNode is null)
                     {
                         break;
@@ -132,14 +159,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             case Mode.DestoryNode:
                 if (Input.GetMouseButtonDown(0))
                 {
-                    foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
-                    {
-                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
-                        {
-                            currentNode = node;
-                            break;
-                        }
-                    }
+                    currentNode = GetMapNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
                     if (currentNode is null)
                     {
                         break;
@@ -189,6 +209,18 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 
                 break;
         }
+    }
+
+    public MapNode GetMapNode(Vector2 point)
+    {
+        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
+        {
+            if (node.GetComponent<CircleCollider2D>().OverlapPoint(point))
+            {
+                return node;
+            }
+        }
+        return null;
     }
     public void OnDrag(PointerEventData data)
     {

@@ -19,14 +19,14 @@ public class MakeTree : MonoBehaviour
         MapNode nodef = gameObject.AddComponent<MapNode>();
         MapNode goal = gameObject.AddComponent<MapNode>();
 
-        start.data = "s";
-        nodez.data = "z";
-        nodea.data = "a";
-        nodex.data = "x";
-        noded.data = "d";
-        nodec.data = "c";
-        nodef.data = "f";
-        goal.data = "g";
+        start.Data = "s";
+        nodez.Data = "z";
+        nodea.Data = "a";
+        nodex.Data = "x";
+        noded.Data = "d";
+        nodec.Data = "c";
+        nodef.Data = "f";
+        goal.Data = "g";
 
         start.Connections.Add(nodex);
         start.Connections.Add(nodea);
@@ -59,7 +59,7 @@ public class MakeTree : MonoBehaviour
         List<string> history = new List<string>();
 
         root = gameObject.AddComponent<TreeNode>();
-        root.data = start.data;
+        root.data = start.Data;
 
         BuildBM(start, goal, start, history, root);
 
@@ -85,7 +85,7 @@ public class MakeTree : MonoBehaviour
     /// <param name="children"></param>
     public static void order(List<MapNode> children)
     {
-        children.Sort((child1, child2) => child1.data.CompareTo(child2.data));
+        children.Sort((child1, child2) => child1.Data.CompareTo(child2.Data));
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class MakeTree : MonoBehaviour
     private void BuildBM(MapNode start, MapNode goal, MapNode current, List<string> history, TreeNode root)
     {
         //check if the node is leaf or goal
-        if (current .Connections.Count == 0 || current.data == goal.data)
+        if (current .Connections.Count == 0 || current.Data == goal.Data)
         {
             return;
         }
@@ -112,18 +112,18 @@ public class MakeTree : MonoBehaviour
         }
 
         int num = current.Connections.Count;
-        string startData = start.data;
-        string currentData = current.data;
+        string startData = start.Data;
+        string currentData = current.Data;
 
         for (int i = 0; i < num; i++)
         {
             //create new node for the tree
-            TreeNode child = new GameObject("" + current.Connections[i].data, typeof(TreeNode)).GetComponent<TreeNode>();
-            child.data = current.Connections[i].data;
+            TreeNode child = new GameObject("" + current.Connections[i].Data, typeof(TreeNode)).GetComponent<TreeNode>();
+            child.data = current.Connections[i].Data;
 
             history.Add(currentData);
 
-            string nextData = current.Connections[i].data;
+            string nextData = current.Connections[i].Data;
 
             //check if the node is visted or it is a start node
             if (currentData == startData || nextData != startData &&
