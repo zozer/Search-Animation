@@ -76,10 +76,6 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                         SelectedNode = null;
                     }
                 }
-                else if (Input.anyKeyDown)
-                {
-                    //SelectedNode.GetComponent<MapNode>().data = 
-                }
                 break;
             case Mode.CreateNode:
                 Vector2 temp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -142,6 +138,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                         tempRend.SetPositions(new Vector3[] { SelectedNode.transform.position, currentNode.transform.position });
                         createdLine = null;
                         SelectedNode.GetComponent<MapNode>().Connections.Add(currentNode);
+                        currentNode.Connections.Add(SelectedNode.GetComponent<MapNode>());
                         SelectedNode = null;
                         break;
                     }
@@ -244,7 +241,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             foreach(MapNode child in node.Connections)
             {
-                if (!tempList.Contains((child,node)))
+                if (!tempList.Contains((child, node)))
                 {
                     tempList.Add((node, child));
                     GameObject tempLine = Instantiate(linePrefab, canvasArea.transform);
@@ -323,6 +320,26 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     {
         currentMode = (currentMode == Mode.DestoryLine) ? Mode.None : Mode.DestoryLine;
         UpdateButtonStatus();
+    }
+
+    public void RunSimulation()
+    {
+        IEnumerable<MapNode> mapNodes = canvasArea.GetComponentsInChildren<MapNode>();
+        MapNode start = mapNodes.FirstOrDefault(e => e.Data == "s");
+        if (start is null)
+        {
+            return;
+        }
+        MapNode end = mapNodes.FirstOrDefault(e => e.Data == "g");
+        if (end is null)
+        {
+            return;
+        }
+        GameObject treeRoot = new GameObject("s", typeof(TreeNode));
+        treeRoot.GetComponent<TreeNode>().data = "s";
+        treeRoot.transform.parent = canvasArea.transform;
+        MakeTree.BuildBM(start, end, start, new List<string>(), treeRoot.GetComponent<TreeNode>());
+        treeRoot.GetComponent<TreeNode>().Debug();
     }
 
     public void UpdateButtonStatus()
