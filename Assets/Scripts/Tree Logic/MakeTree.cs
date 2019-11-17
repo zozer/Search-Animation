@@ -5,19 +5,20 @@ using UnityEngine;
 public class MakeTree : MonoBehaviour
 {
     public TreeNode root;
+    public GameObject mapNode;
     /// <summary>
     /// For testing purpose only
     /// </summary>
     public void CreateTest()
     {
-        MapNode start = gameObject.AddComponent<MapNode>();
-        MapNode nodez = gameObject.AddComponent<MapNode>();
-        MapNode nodea = gameObject.AddComponent<MapNode>();
-        MapNode nodex = gameObject.AddComponent<MapNode>();
-        MapNode noded = gameObject.AddComponent<MapNode>();
-        MapNode nodec = gameObject.AddComponent<MapNode>();
-        MapNode nodef = gameObject.AddComponent<MapNode>();
-        MapNode goal = gameObject.AddComponent<MapNode>();
+        MapNode start = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode nodez = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode nodea = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode nodex = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode noded = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode nodec = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode nodef = Instantiate(mapNode).GetComponent<MapNode>();
+        MapNode goal = Instantiate(mapNode).GetComponent<MapNode>();
 
         start.Data = "s";
         nodez.Data = "z";
