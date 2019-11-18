@@ -12,7 +12,9 @@ public class testTree : MonoBehaviour
         MakeTree test = gameObject.AddComponent<MakeTree>();
         test.mapNode = mapNode;
         test.CreateTest();
-        test.root.Debug();
+        //test.rootBM.Debug();
+        //test.rootDF.Debug();
+        test.rootBF.Debug();
     }
 
     // Update is called once per frame
