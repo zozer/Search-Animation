@@ -14,7 +14,7 @@ public class testTree : MonoBehaviour
         test.CreateTest();
         //test.rootBM.Debug();
         //test.rootDF.Debug();
-        test.rootBF.Debug();
+        //test.rootBF.Debug();
     }
 
     // Update is called once per frame
