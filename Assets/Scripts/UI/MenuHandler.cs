@@ -6,28 +6,40 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class MenuHandler : MonoBehaviour, IDragHandler
 {
-    enum Mode { None, SelectNode, CreateNode, CreateLine, DestoryNode, DestoryLine};
-    Mode currentMode = Mode.None;
+    enum Mode { None, SelectNode, CreateNode, CreateLine, DestoryNode, DestoryLine };
+
+    Mode CurrentMode { get; set; }
     // Start is called before the first frame update
     GameObject _selectedNode;
     GameObject SelectedNode
     {
         get => _selectedNode;
-        set {
+        set
+        {
             if (value is null)
             {
-                _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
-                
+                if (!(_selectedNode is null))
+                {
+                    _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
+                }
             } else
             {
+                if (!(_selectedNode is null))
+                {
+                    _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
+                }
                 value.GetComponent<SpriteRenderer>().color = Color.yellow;
             }
             _selectedNode = value;
-        } }
+        }
+    }
     public GameObject nodePrefab;
     public GameObject linePrefab;
+    public GameObject treeNodePrefab;
     public GameObject canvasArea;
     public GameObject menuArea;
+
+    private Vector2 MousePosition => Camera.main.ScreenToWorldPoint(Input.mousePosition);
     readonly Vector3[] corners = new Vector3[4];
 
     int totalVLines = 0;
@@ -36,13 +48,14 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     GameObject createdLine = null;
     void Start()
     {
+        CurrentMode = Mode.None;
         canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
         DrawLines();
     }
     void OnGUI()
     {
         Event e = Event.current;
-        if (currentMode == Mode.SelectNode)
+        if (CurrentMode == Mode.SelectNode)
         {
             if (e.type == EventType.KeyUp)
             {
@@ -54,31 +67,37 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     void Update()
     {
         MapNode currentNode = null;
-        switch (currentMode)
+        switch (CurrentMode)
         {
             case Mode.None:
                 if (Input.GetMouseButtonDown(0))
                 {
-                    currentNode = GetMapNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                    currentNode = GetMapNode(MousePosition);
                     if (!(currentNode is null))
                     {
                         SelectedNode = currentNode.gameObject;
-                        currentMode = Mode.SelectNode;
+                        CurrentMode = Mode.SelectNode;
                     }
                 }
                 break;
             case Mode.SelectNode:
                 if (Input.GetMouseButtonDown(0))
                 {
-                    if (!SelectedNode.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                    currentNode = GetMapNode(MousePosition);
+                    if (!(currentNode is null))
                     {
-                        currentMode = Mode.None;
+                        SelectedNode = currentNode.gameObject;
+                        CurrentMode = Mode.SelectNode;
+                    }
+                    else
+                    {
+                        CurrentMode = Mode.None;
                         SelectedNode = null;
                     }
                 }
                 break;
             case Mode.CreateNode:
-                Vector2 temp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 temp = MousePosition;
                 temp.x = Mathf.RoundToInt(temp.x) + totalDelta.x;
                 temp.y = Mathf.RoundToInt(temp.y) + totalDelta.y;
                 SelectedNode.transform.position = temp;
@@ -87,15 +106,18 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     ) 
                 {
                     SelectedNode.GetComponent<SpriteRenderer>().color = Color.red;
-                } else
+                }
+                else
                 {
                     SelectedNode.GetComponent<SpriteRenderer>().color = Color.cyan;
                     if (Input.GetMouseButtonDown(0))
                     {
-
-                        SelectedNode.GetComponent<SpriteRenderer>().color = Color.white;
-                        SelectedNode = null;
-                        currentMode = Mode.None;
+                        if (RectTransformUtility.RectangleContainsScreenPoint(canvasArea.GetComponent<RectTransform>(), Input.mousePosition, Camera.main))
+                        {
+                            SelectedNode.GetComponent<SpriteRenderer>().color = Color.white;
+                            SelectedNode = null;
+                            CurrentMode = Mode.None;
+                        }
                     }
                 }
                 break;
@@ -103,11 +125,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 if (SelectedNode != null)
                 {
                     LineRenderer tempRend = createdLine.GetComponent<LineRenderer>();
-                    tempRend.SetPositions(new Vector3[] { SelectedNode.transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition) });
+                    tempRend.SetPositions(new Vector3[] { SelectedNode.transform.position, MousePosition });
                 }
                 if (Input.GetMouseButtonDown(0))
                 {
-                    currentNode = GetMapNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                    currentNode = GetMapNode(MousePosition);
                     if (currentNode is null)
                     {
                         break;
@@ -156,7 +178,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             case Mode.DestoryNode:
                 if (Input.GetMouseButtonDown(0))
                 {
-                    currentNode = GetMapNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                    currentNode = GetMapNode(MousePosition);
                     if (currentNode is null)
                     {
                         break;
@@ -176,7 +198,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 {
                     foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
                     {
-                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                        if (node.GetComponent<CircleCollider2D>().OverlapPoint(MousePosition))
                         {
                             currentNode = node;
                             break;
@@ -203,7 +225,10 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                         SelectedNode = null;
                     }
                 }
-                
+                else if (Input.GetMouseButtonDown(1))
+                {
+                    SelectedNode = null;
+                }
                 break;
         }
     }
@@ -221,7 +246,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     }
     public void OnDrag(PointerEventData data)
     {
-        if (currentMode != Mode.None)
+        if (CurrentMode != Mode.None)
         {
             return;
         }
@@ -267,7 +292,8 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 if (tempPos.x > Mathf.RoundToInt(corners[3].x))
                 {
                     tempPos.x -= totalVLines;
-                } else if (tempPos.x < Mathf.RoundToInt(corners[0].x))
+                }
+                else if (tempPos.x < Mathf.RoundToInt(corners[0].x))
                 {
                     tempPos.x += totalVLines;
                 }
@@ -297,33 +323,40 @@ public class MenuHandler : MonoBehaviour, IDragHandler
 
     public void CreateNode()
     {
+        CleanUp();
         SelectedNode = Instantiate(nodePrefab,canvasArea.transform);
-        SelectedNode.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        SelectedNode.transform.position = MousePosition;
         SelectedNode.GetComponent<SpriteRenderer>().color = Color.cyan;
-        currentMode = Mode.CreateNode;
+        CurrentMode = Mode.CreateNode;
         UpdateButtonStatus();
     }
 
     public void CreateLine()
     {
-        currentMode = (currentMode == Mode.CreateLine) ? Mode.None : Mode.CreateLine;
+        CleanUp();
+        CurrentMode = (CurrentMode == Mode.CreateLine) ? Mode.None : Mode.CreateLine;
         UpdateButtonStatus();
     }
 
     public void DestroyNode()
     {
-        currentMode = (currentMode == Mode.DestoryNode) ? Mode.None : Mode.DestoryNode;
+        CleanUp();
+        CurrentMode = (CurrentMode == Mode.DestoryNode) ? Mode.None : Mode.DestoryNode;
         UpdateButtonStatus();
     }
 
     public void DestroyLine()
     {
-        currentMode = (currentMode == Mode.DestoryLine) ? Mode.None : Mode.DestoryLine;
+        CleanUp();
+        CurrentMode = (CurrentMode == Mode.DestoryLine) ? Mode.None : Mode.DestoryLine;
         UpdateButtonStatus();
     }
 
     public void RunSimulation()
     {
+        CleanUp();
+        CurrentMode = Mode.None;
+        UpdateButtonStatus();
         IEnumerable<MapNode> mapNodes = canvasArea.GetComponentsInChildren<MapNode>();
         MapNode start = mapNodes.FirstOrDefault(e => e.Data == "s");
         if (start is null)
@@ -342,14 +375,36 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         treeRoot.GetComponent<TreeNode>().Debug();
     }
 
-    public void UpdateButtonStatus()
+    void CleanUp()
+    {
+        switch (CurrentMode)
+        {
+            case Mode.None:
+            case Mode.SelectNode:
+            case Mode.DestoryLine:
+                SelectedNode = null;
+                break;
+            case Mode.CreateNode:
+                Destroy(SelectedNode);
+                SelectedNode = null;
+                break;
+            case Mode.CreateLine:
+                if (!(createdLine is null))
+                {
+                    SelectedNode = null;
+                    Destroy(createdLine);
+                }
+                break;
+        }
+    }
+    void UpdateButtonStatus()
     {
         menuArea.transform.Find("LineButton").GetComponent<Image>().color =
-            (currentMode == Mode.CreateLine) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+            (CurrentMode == Mode.CreateLine) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
         menuArea.transform.Find("DeleteNodeButton").GetComponent<Image>().color =
-            (currentMode == Mode.DestoryNode) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+            (CurrentMode == Mode.DestoryNode) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
         menuArea.transform.Find("DeleteLineButton").GetComponent<Image>().color =
-            (currentMode == Mode.DestoryLine) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+            (CurrentMode == Mode.DestoryLine) ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
     }
 
     void DrawLines()
