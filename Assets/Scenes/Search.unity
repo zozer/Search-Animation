@@ -217,3 +217,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapNode: {fileID: 3182685885623035975, guid: 8cf7f2c156ddc1e4a94f04ec29977b9e, type: 3}
+  treeNode: {fileID: 1459535174116349004, guid: e052c0a5a03397c4284f0c59d69885a3,
+    type: 3}

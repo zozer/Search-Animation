@@ -170,28 +170,24 @@ public class MakeTree : MonoBehaviour
         string currentData = current.Data;
 
         //travsering nodes
-        for (int i = 0; i < num; i++)
+        foreach (MapNode connection in current.Connections)
         {
             //create new node for the tree
-            TreeNode child = new GameObject("" + current.Connections[i].Data, typeof(TreeNode)).GetComponent<TreeNode>();
-            child.data = current.Connections[i].Data;
+
 
             history.Add(currentData);
 
-            string nextData = current.Connections[i].Data;
+            string nextData = connection.Data;
 
             //check if the node is visted or it is a start node
             if (currentData == startData || nextData != startData &&
                 history.Contains(nextData) == false)
             {
-                child.Parent = root;
+                TreeNode child = new GameObject(connection.Data, typeof(TreeNode)).GetComponent<TreeNode>();
+                child.data = connection.Data;
                 root.AddChild(child);
 
-                BuildBM(start, goal, current.Connections[i], history, child);
-            }
-            else
-            {
-                Destroy(child.gameObject);
+                BuildBM(start, goal, connection, history, child);
             }
             history.Remove(currentData);
         }
