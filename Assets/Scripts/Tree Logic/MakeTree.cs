@@ -8,6 +8,7 @@ public class MakeTree : MonoBehaviour
     public TreeNode rootDF;
     public TreeNode rootBF;
     public GameObject mapNode;
+    public GameObject treeNode;
 
     /// <summary>
     /// For testing purpose only
@@ -77,15 +78,15 @@ public class MakeTree : MonoBehaviour
         List<string> history = new List<string>();
 
         //new gameObject for BM tree
-        rootBM = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
+        rootBM = Instantiate(treeNode, transform).GetComponent<TreeNode>();
         rootBM.name = start.Data;
-        rootBM.data = start.Data;
+        rootBM.Data = start.Data;
 
         //build BM tree
         BuildBM(start, goal, start, history, rootBM);
 
         //new gameObject for DF tree
-        List<List<string>> procedureDF = new List<List<string>>();
+        /*List<List<string>> procedureDF = new List<List<string>>();
         rootDF = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
         rootDF.name = start.Data;
         rootDF.data = start.Data;
@@ -105,7 +106,7 @@ public class MakeTree : MonoBehaviour
 
         //create procedure for BF
         height = CheckHeight(rootBF);
-        MakeProcedureBF(rootBF, procedureBF, height, goal);
+        MakeProcedureBF(rootBF, procedureBF, height, goal);*/
 
         /*
         //print out all procedure(DF)
@@ -136,7 +137,7 @@ public class MakeTree : MonoBehaviour
     /// sorting the list in alphabetical order
     /// </summary>
     /// <param name="children"></param>
-    public static void order(List<MapNode> children)
+    public static void Order(List<MapNode> children)
     {
         children.Sort((child1, child2) => child1.Data.CompareTo(child2.Data));
     }
@@ -161,11 +162,10 @@ public class MakeTree : MonoBehaviour
         //sort the list to follow alphabetical order
         if(current.Connections.Count > 1)
         {
-            order(current.Connections);
+            Order(current.Connections);
         }
 
         //initilizing variables
-        int num = current.Connections.Count;
         string startData = start.Data;
         string currentData = current.Data;
 
@@ -184,7 +184,7 @@ public class MakeTree : MonoBehaviour
                 history.Contains(nextData) == false)
             {
                 TreeNode child = new GameObject(connection.Data, typeof(TreeNode)).GetComponent<TreeNode>();
-                child.data = connection.Data;
+                child.Data = connection.Data;
                 root.AddChild(child);
 
                 BuildBM(start, goal, connection, history, child);
@@ -205,7 +205,7 @@ public class MakeTree : MonoBehaviour
     {
 
         //stop when goal is found
-        if (oriRoot.data == goal.Data)
+        if (oriRoot.Data == goal.Data)
         {
             return true;
         }
@@ -223,7 +223,7 @@ public class MakeTree : MonoBehaviour
 
             if (procedure.Count == 0)
             {
-                string proString = oriRoot.data;
+                string proString = oriRoot.Data;
                 List<string> temp = new List<string>();
                 temp.Add(proString);
                 procedure.Add(temp);
@@ -238,7 +238,7 @@ public class MakeTree : MonoBehaviour
 
             for (int i = 0; i < oriRoot.Children.Count; i++)
             {
-                string newBranch = branch + oriRoot.Children[i].data;
+                string newBranch = branch + oriRoot.Children[i].Data;
                 newProcedure.Insert(i, newBranch);
             }
 
@@ -246,8 +246,8 @@ public class MakeTree : MonoBehaviour
 
             for (int i = 0; i < oriRoot.Children.Count; i++)
             {
-                TreeNode child = new GameObject("" + oriRoot.Children[i].data, typeof(TreeNode)).GetComponent<TreeNode>();
-                child.data = oriRoot.Children[i].data;
+                TreeNode child = new GameObject("" + oriRoot.Children[i].Data, typeof(TreeNode)).GetComponent<TreeNode>();
+                child.Data = oriRoot.Children[i].Data;
                 child.Parent = newRoot;
                 newRoot.AddChild(child);
             }
@@ -312,7 +312,7 @@ public class MakeTree : MonoBehaviour
     /// <returns></returns>
     private bool TraversingBF(TreeNode oriRoot, MapNode goal, int level, TreeNode newRoot)
     {
-        if (oriRoot.data == goal.Data)
+        if (oriRoot.Data == goal.Data)
         {
             return true;
         }
@@ -332,8 +332,8 @@ public class MakeTree : MonoBehaviour
         {
             for (int i = 0; i < oriRoot.Children.Count; i++)
             {
-                TreeNode child = new GameObject("" + oriRoot.Children[i].data, typeof(TreeNode)).GetComponent<TreeNode>();
-                child.data = oriRoot.Children[i].data;
+                TreeNode child = new GameObject("" + oriRoot.Children[i].Data, typeof(TreeNode)).GetComponent<TreeNode>();
+                child.Data = oriRoot.Children[i].Data;
                 child.Parent = newRoot;
                 newRoot.AddChild(child);
             }
@@ -393,7 +393,7 @@ public class MakeTree : MonoBehaviour
         }
         else
         {
-            if (root.data == goal.Data)
+            if (root.Data == goal.Data)
             {
                 return true;
             }
@@ -410,7 +410,7 @@ public class MakeTree : MonoBehaviour
                 for (int i = 0; i < root.Children.Count; i++)
                 {
                     string temp = branch;
-                    branch = branch + root.Children[i].data;
+                    branch = branch + root.Children[i].Data;
                     newProcedure.Add(branch);
                     branch = temp;
                 }
@@ -431,7 +431,7 @@ public class MakeTree : MonoBehaviour
     /// <param name="goal">goal node</param>
     private void MakeProcedureBF(TreeNode oriRoot, List<List<string>> procedureBF, int height, MapNode goal)
     {
-        string proString = oriRoot.data;
+        string proString = oriRoot.Data;
         List<string> startLine = new List<string>();
         startLine.Add(proString);
         procedureBF.Add(startLine);

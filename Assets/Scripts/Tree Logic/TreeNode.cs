@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 public class TreeNode : MonoBehaviour
 {
-    public string data;
+    public string Data
+    {
+        get => GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text;
+        set => GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text = value;
+    }
     public TreeNode Parent
     {
         get => transform.parent?.GetComponent<TreeNode>();
@@ -28,11 +33,11 @@ public class TreeNode : MonoBehaviour
         foreach (TreeNode node in leaf)
         {
             current = node;
-            branches.Add(node.data);
+            branches.Add(node.Data);
             current = current.Parent;
             while (current != null)
             {
-                branches[branches.Count - 1] += current.data;
+                branches[branches.Count - 1] += current.Data;
                 current = current.Parent;
             }
         }

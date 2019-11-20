@@ -6,11 +6,9 @@ public class testTree : MonoBehaviour
 {
 
     // Start is called before the first frame update
-    public GameObject mapNode;
     void Start()
     {
-        MakeTree test = gameObject.AddComponent<MakeTree>();
-        test.mapNode = mapNode;
+        MakeTree test = GetComponent<MakeTree>();
         test.CreateTest();
         //test.rootBM.Debug();
         //test.rootDF.Debug();
