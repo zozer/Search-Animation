@@ -10,9 +10,14 @@ public class testTree : MonoBehaviour
     {
         MakeTree test = GetComponent<MakeTree>();
         test.CreateTest();
+        foreach (MapNode obj in FindObjectsOfType<MapNode>())
+        {
+            obj.gameObject.SetActive(false);
+        }
         //test.rootBM.Debug();
         //test.rootDF.Debug();
         //test.rootBF.Debug();
+        test.AdjustNodes(test.rootBM);
     }
 
     // Update is called once per frame

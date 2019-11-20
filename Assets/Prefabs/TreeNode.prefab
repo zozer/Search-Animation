@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33740462c39a0314d8f9719322de5463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: 
 --- !u!1001 &4463347414443186012
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -83,7 +82,7 @@ PrefabInstance:
     - target: {fileID: 3004377389450904351, guid: 9b26d539f7a01874883c5778fdd66961,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 1000
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3004377389450904351, guid: 9b26d539f7a01874883c5778fdd66961,
         type: 3}

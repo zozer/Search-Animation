@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MakeTree : MonoBehaviour
@@ -151,7 +152,7 @@ public class MakeTree : MonoBehaviour
     /// (It must be the same as the starting node at the beginning)</param>
     /// <param name="history">history nodes that had visited in the path</param>
     /// <param name="root">root of the tree that we want to build</param>
-    public static void BuildBM(MapNode start, MapNode goal, MapNode current, List<string> history, TreeNode root)
+    public void BuildBM(MapNode start, MapNode goal, MapNode current, List<string> history, TreeNode root)
     {
         //check if the node is leaf or goal
         if (current.Connections.Count == 0 || current.Data == goal.Data)
@@ -183,13 +184,35 @@ public class MakeTree : MonoBehaviour
             if (currentData == startData || nextData != startData &&
                 history.Contains(nextData) == false)
             {
-                TreeNode child = new GameObject(connection.Data, typeof(TreeNode)).GetComponent<TreeNode>();
+                TreeNode child = Instantiate(treeNode).GetComponent<TreeNode>();
                 child.Data = connection.Data;
-                root.AddChild(child);
+                child.name = connection.Data;
+                child.Parent = root;
 
                 BuildBM(start, goal, connection, history, child);
             }
             history.Remove(currentData);
+        }
+    }
+
+    public void AdjustNodes(TreeNode root)
+    {
+        //adjust werid stuff unity does
+        if (root == rootBM)
+        {
+            root.Children.ForEach(e =>
+            {
+                e.transform.localPosition = (Vector2)e.transform.localPosition;
+                e.transform.localScale = Vector2.one;
+            });
+            root.transform.localPosition += new Vector3(-900, 200);
+        }
+        //end adjust
+        List<TreeNode> current = root.Children;
+        for (int i = 0; i < current.Count; i++)
+        {
+            current[i].transform.localPosition += new Vector3(0.4f * ((i == 0) ? 0 : current[i - 1].Children.Count), -0.2f, 0);
+            AdjustNodes(current[i]);
         }
     }
 
