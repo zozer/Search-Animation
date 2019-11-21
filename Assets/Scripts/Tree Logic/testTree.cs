@@ -12,7 +12,7 @@ public class TestTree : MonoBehaviour
         MakeTree test = GetComponent<MakeTree>();
         test.CreateTest();
         List<List<string>> ret = test.DFSearch(FindObjectsOfType<MapNode>().First(e => e.Data == "s"), FindObjectsOfType<MapNode>().First(e => e.Data == "g"));
-        StartCoroutine(test.AnimateDFSteps(ret, test.rootBM));
+        StartCoroutine(test.AnimateSteps(ret, test.rootBM));
         //test.AnimateDFSteps(ret, test.rootBM);
         foreach (MapNode obj in FindObjectsOfType<MapNode>())
         {

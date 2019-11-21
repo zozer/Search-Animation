@@ -400,15 +400,16 @@ public class MakeTree : MonoBehaviour
         for (int i = 1; i <= height; i++)
         {
             List<string> newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
+            string branch = newProcedure[0];
             newProcedure.RemoveAt(0);
-            if (ProcedureBFHelp(oriRoot, procedureBF, i, goal, newProcedure, newProcedure[0]))
+            if (ProcedureBFHelp(oriRoot, procedureBF, i, goal, newProcedure, branch))
             {
               return;
             }
         }
     }
 
-    public IEnumerator AnimateDFSteps(List<List<string>> steps, TreeNode root)
+    public IEnumerator AnimateSteps(List<List<string>> steps, TreeNode root)
     {
         foreach (TreeNode node in root.GetComponentsInChildren<TreeNode>())
         {
@@ -435,6 +436,7 @@ public class MakeTree : MonoBehaviour
                 }
             }
         }
+        nodeSteps.Last().First().GetComponent<SpriteRenderer>().color = Color.green;
     }
 
     List<List<TreeNode>> NodeSteps(List<List<string>> steps, TreeNode root) =>
