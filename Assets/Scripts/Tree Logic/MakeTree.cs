@@ -493,13 +493,19 @@ public class MakeTree : MonoBehaviour
         }
         steps.RemoveAt(0);
         root.GetComponent<SpriteRenderer>().color = Color.yellow;
-        foreach (List<string> step in steps)
+        List<List<TreeNode>> nodeSteps = NodeSteps(steps, root);
+
+        foreach (List<TreeNode> step in nodeSteps)
         {
             bool first = true;
-            foreach (string path in step)
+            yield return new WaitForSecondsRealtime(0.5f);
+            foreach (TreeNode node in step)
             {
-                yield return new WaitForSeconds(0.5f);
-                FindNodeByPath(path, root).GetComponent<SpriteRenderer>().color = first ? Color.yellow : Color.blue;
+                if (!first && node.GetComponent<SpriteRenderer>().color == Color.blue)
+                {
+                    continue;
+                }
+                node.GetComponent<SpriteRenderer>().color = first ? Color.yellow : Color.blue;
                 if (first)
                 {
                     first = false;
@@ -509,13 +515,19 @@ public class MakeTree : MonoBehaviour
         yield return null;
         
     }
+
+    List<List<TreeNode>> NodeSteps(List<List<string>> steps, TreeNode root) =>
+        steps.Select(e => e.Select(f => FindNodeByPath(f, root)).ToList()).ToList();
     TreeNode FindNodeByPath(string path, TreeNode root)
     {
         List<char> dataPath = path.ToList();
         IEnumerable<(TreeNode, TreeNode)> nodes = root.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
         do
         {
-            nodes = nodes.Where(e => e.Item2.Data == "" + dataPath.Last()).Select(e => (e.Item1, e.Item2.Parent)).Where(e => !(e.Parent is null)).ToList();
+            nodes = nodes.Where(e => e.Item2.Data == "" + dataPath.Last())
+                .Select(e => (e.Item1, e.Item2.Parent))
+                .Where(e => !(e.Parent is null))
+                .ToList();
             dataPath.RemoveAt(dataPath.Count - 1);
         } while (nodes.Count() != 1);
         return nodes.First().Item1;
