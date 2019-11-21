@@ -9,7 +9,11 @@ public class TreeNode : MonoBehaviour
     public string Data
     {
         get => GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text;
-        set => GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text = value;
+        set
+        {
+            name = value;
+            GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text = value;
+        }
     }
     public TreeNode Parent
     {

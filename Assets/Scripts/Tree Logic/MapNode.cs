@@ -9,6 +9,10 @@ public class MapNode: MonoBehaviour
     public string Data
     {
         get => transform.GetChild(0).GetComponent<Text>().text;
-        set => transform.GetChild(0).GetComponent<Text>().text = value;
+        set
+        {
+            name = value;
+            transform.GetChild(0).GetComponent<Text>().text = value;
+        }
     }
 }
