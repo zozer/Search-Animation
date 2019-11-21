@@ -27,6 +27,28 @@ public class MakeTree : MonoBehaviour
         rootDF.gameObject.SetActive(false);
         return procedureDF;
     }
+
+    public List<List<string>> BFSearch(MapNode start, MapNode end)
+    {
+        List<List<string>> procedureBF = new List<List<string>>();
+        rootBF = Instantiate(treeNode, transform).GetComponent<TreeNode>();
+        rootBF.name = "BF-" + start.Data;
+        rootBF.Data = start.Data;
+        int height = CheckHeight(rootBM);
+
+        //create BF tree 
+        BuildBF(rootBM, end, rootBF, height);
+
+        //create procedure for BF
+        height = CheckHeight(rootBF);
+        MakeProcedureBF(rootBF, procedureBF, height, end);
+        foreach (List<string> l in procedureBF)
+        {
+            print("(" + string.Join(")(", l) + ")");
+        }
+        rootBF.gameObject.SetActive(false);
+        return procedureBF;
+    }
     /// <summary>
     /// For testing purpose only
     /// </summary>
@@ -101,46 +123,6 @@ public class MakeTree : MonoBehaviour
 
         //build BM tree
         BuildBM(start, goal, start, history, rootBM);
-
-        //new gameObject for DF tree
-
-        /*//new gameObject for BF tree
-        List<List<string>> procedureBF = new List<List<string>>();
-        rootBF = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
-        rootBF.name = start.Data;
-        rootBF.data = start.Data;
-        int height = CheckHeight(rootBM);
-
-        //create BF tree 
-        BuildBF(rootBM, goal, rootBF, height);
-
-        //create procedure for BF
-        height = CheckHeight(rootBF);
-        MakeProcedureBF(rootBF, procedureBF, height, goal);*/
-
-        /*
-        //print out all procedure(DF)
-        for (int i = 0; i < procedureDF.Count; i++)
-        {
-            string sentence = "";
-            for (int j = 0; j < procedureDF[i].Count; j++)
-            {
-                sentence += "(" + procedureDF[i][j] +")";
-            }
-            Debug.Log(sentence);
-        }*/
-
-        /*
-        //print out all procedure(BF)
-        for (int i = 0; i < procedureBF.Count; i++)
-        {
-            string sentence = "";
-            for (int j = 0; j < procedureBF[i].Count; j++)
-            {
-                sentence += "(" + procedureBF[i][j] + ")";
-            }
-            Debug.Log(sentence);
-        }*/
     }
 
     /// <summary>
@@ -203,7 +185,10 @@ public class MakeTree : MonoBehaviour
             history.Remove(currentData);
         }
     }
-
+    /// <summary>
+    /// Adjust nodes visually on the screen to look somewhat presentable
+    /// </summary>
+    /// <param name="root"></param>
     public void AdjustNodes(TreeNode root)
     {
         //adjust werid stuff unity does
@@ -259,15 +244,11 @@ public class MakeTree : MonoBehaviour
 
             if (procedure.Count == 0)
             {
-                string proString = oriRoot.Data;
-                List<string> temp = new List<string>();
-                temp.Add(proString);
-                procedure.Add(temp);
+                procedure.Add(new List<string>() { oriRoot.Data });
             }
 
-            int num = procedure.Count;
 
-            List<string> newProcedure = new List<string>(procedure[num - 1]);
+            List<string> newProcedure = new List<string>(procedure[procedure.Count - 1]);
             string branch = newProcedure[0];
 
             newProcedure.RemoveAt(0);
@@ -280,24 +261,20 @@ public class MakeTree : MonoBehaviour
 
             procedure.Add(newProcedure);
 
-            for (int i = 0; i < oriRoot.Children.Count; i++)
+            foreach (TreeNode oriChild in oriRoot.Children)
             {
                 TreeNode child = Instantiate(treeNode).GetComponent<TreeNode>();
-                child.name = oriRoot.Children[i].Data;
-                child.Data = oriRoot.Children[i].Data;
+                child.name = oriChild.Data;
+                child.Data = oriChild.Data;
                 newRoot.AddChild(child);
             }
 
-            
             for (int i = 0; i < oriRoot.Children.Count; i++)
             {
-                bool find = BuildDF(oriRoot.Children[i], goal, newRoot.Children[i], procedure);
-
-                if (find == true)
+                if (BuildDF(oriRoot.Children[i], goal, newRoot.Children[i], procedure))
                 {
                     return true;
                 }
-
             }
 
             return false;
@@ -318,23 +295,15 @@ public class MakeTree : MonoBehaviour
         else
         {
             int height = 0;
-            for (int i = 0; i < root.Children.Count; i++)
+            foreach (TreeNode child in root.Children)
             {
-                int current = CheckHeight(root.Children[i]);
-                if (i == 0)
+                int current = CheckHeight(child);
+                if (height < current)
                 {
                     height = current;
                 }
-                else
-                {
-                    if (height < current)
-                    {
-                        height = current;
-                    }
-                }
             }
-
-            return (height + 1);
+            return height + 1;
         }
     }
 
@@ -357,8 +326,7 @@ public class MakeTree : MonoBehaviour
         {
             for (int i = 0; i < oriRoot.Children.Count; i++)
             {
-                bool find = TraversingBF(oriRoot.Children[i], goal, (level - 1), newRoot.Children[i]);
-                if (find == true)
+                if (TraversingBF(oriRoot.Children[i], goal, level - 1, newRoot.Children[i]))
                 {
                     return true;
                 }
@@ -366,18 +334,18 @@ public class MakeTree : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < oriRoot.Children.Count; i++)
+            foreach (TreeNode oriChild in oriRoot.Children)
             {
-                TreeNode child = new GameObject("" + oriRoot.Children[i].Data, typeof(TreeNode)).GetComponent<TreeNode>();
-                child.Data = oriRoot.Children[i].Data;
+                TreeNode child = Instantiate(treeNode).GetComponent<TreeNode>();
+                child.name = oriChild.Data;
+                child.Data = oriChild.Data;
                 child.Parent = newRoot;
-                newRoot.AddChild(child);
             }
         }
 
         return false;
     }
-
+    
     /// <summary>
     /// build breadth-first tree
     /// </summary>
@@ -390,9 +358,7 @@ public class MakeTree : MonoBehaviour
     {
         for (int i = 1; i <= height; i++)
         {
-            bool find = TraversingBF(oriRoot, goal, i, newRoot);
-
-            if (find == true)
+            if (TraversingBF(oriRoot, goal, i, newRoot))
             {
                 return true;
             }
@@ -415,13 +381,13 @@ public class MakeTree : MonoBehaviour
     {
         if (level != 1)
         {
-            for (int i = 0; i < root.Children.Count; i++)
+            foreach (TreeNode child in root.Children)
             {
-                bool find = ProcedureBFHelp(root.Children[i], procedureBF, (level - 1), goal, newProcedure, branch);
+                bool find = ProcedureBFHelp(child, procedureBF, level - 1, goal, newProcedure, branch);
                 newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
                 branch = newProcedure[0];
                 newProcedure.RemoveAt(0);
-                if (find == true)
+                if (find)
                 {
                     return true;
                 }
@@ -437,16 +403,15 @@ public class MakeTree : MonoBehaviour
             {
                 procedureBF.Add(newProcedure);
                 newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
-                branch = newProcedure[0];
                 newProcedure.RemoveAt(0);
                 return false;
             }
             else
             {
-                for (int i = 0; i < root.Children.Count; i++)
+                foreach (TreeNode child in root.Children)
                 {
                     string temp = branch;
-                    branch = branch + root.Children[i].Data;
+                    branch += child.Data;
                     newProcedure.Add(branch);
                     branch = temp;
                 }
@@ -457,7 +422,7 @@ public class MakeTree : MonoBehaviour
 
         return false;
     }
-
+    
     /// <summary>
     /// travsering BF and creating procedure
     /// </summary>
@@ -467,18 +432,14 @@ public class MakeTree : MonoBehaviour
     /// <param name="goal">goal node</param>
     private void MakeProcedureBF(TreeNode oriRoot, List<List<string>> procedureBF, int height, MapNode goal)
     {
-        string proString = oriRoot.Data;
-        List<string> startLine = new List<string>();
-        startLine.Add(proString);
-        procedureBF.Add(startLine);
+        procedureBF.Add(new List<string> { oriRoot.Data });
 
         for (int i = 1; i <= height; i++)
         {
             List<string> newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
             string branch = newProcedure[0];
             newProcedure.RemoveAt(0);
-            bool find = ProcedureBFHelp(oriRoot, procedureBF, i, goal, newProcedure, branch);
-            if (find == true)
+            if (ProcedureBFHelp(oriRoot, procedureBF, i, goal, newProcedure, branch))
             {
               return;
             }
@@ -512,8 +473,6 @@ public class MakeTree : MonoBehaviour
                 }
             }
         }
-        yield return null;
-        
     }
 
     List<List<TreeNode>> NodeSteps(List<List<string>> steps, TreeNode root) =>
