@@ -369,9 +369,9 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             return;
         }
         GameObject treeRoot = new GameObject("s", typeof(TreeNode));
-        treeRoot.GetComponent<TreeNode>().data = "s";
-        treeRoot.transform.parent = canvasArea.transform;
-        MakeTree.BuildBM(start, end, start, new List<string>(), treeRoot.GetComponent<TreeNode>());
+        //treeRoot.GetComponent<TreeNode>().Data = "s";
+        //treeRoot.transform.parent = canvasArea.transform;
+        //GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), treeRoot.GetComponent<TreeNode>());
         treeRoot.GetComponent<TreeNode>().Debug();
     }
 
@@ -427,5 +427,12 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             tempRend.SetPositions(new Vector3[] { new Vector3(corners[0].x, j, 0), new Vector3(corners[3].x, j, 0) });
         }
         totalHLines = j - Mathf.RoundToInt(corners[0].y);
+    }
+
+    void DrawTree(MapNode start, MapNode end)
+    {
+        TreeNode root = Instantiate(treeNodePrefab).GetComponent<TreeNode>();
+        //root.Data = start.Data;
+        //GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), root);
     }
 }

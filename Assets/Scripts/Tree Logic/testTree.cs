@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
-public class testTree : MonoBehaviour
+public class TestTree : MonoBehaviour
 {
 
     // Start is called before the first frame update
@@ -10,6 +11,9 @@ public class testTree : MonoBehaviour
     {
         MakeTree test = GetComponent<MakeTree>();
         test.CreateTest();
+        List<List<string>> ret = test.DFSearch(FindObjectsOfType<MapNode>().First(e => e.Data == "s"), FindObjectsOfType<MapNode>().First(e => e.Data == "g"));
+        StartCoroutine(test.AnimateDFSteps(ret, test.rootBM));
+        //test.AnimateDFSteps(ret, test.rootBM);
         foreach (MapNode obj in FindObjectsOfType<MapNode>())
         {
             obj.gameObject.SetActive(false);
@@ -18,11 +22,5 @@ public class testTree : MonoBehaviour
         //test.rootDF.Debug();
         //test.rootBF.Debug();
         test.AdjustNodes(test.rootBM);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

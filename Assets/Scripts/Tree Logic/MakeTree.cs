@@ -11,6 +11,22 @@ public class MakeTree : MonoBehaviour
     public GameObject mapNode;
     public GameObject treeNode;
 
+    public List<List<string>> DFSearch(MapNode start, MapNode end)
+    {
+        List<List<string>> procedureDF = new List<List<string>>();
+        rootDF = Instantiate(treeNode, transform).GetComponent<TreeNode>();
+        rootDF.name = "DF-" + start.Data;
+        rootDF.Data = start.Data;
+
+        //build DF tree
+        BuildDF(rootBM, end, rootDF, procedureDF);
+        foreach (List<string> l in procedureDF)
+        {
+            //print("(" + string.Join(")(", l) + ")");
+        }
+        rootDF.gameObject.SetActive(false);
+        return procedureDF;
+    }
     /// <summary>
     /// For testing purpose only
     /// </summary>
@@ -87,15 +103,8 @@ public class MakeTree : MonoBehaviour
         BuildBM(start, goal, start, history, rootBM);
 
         //new gameObject for DF tree
-        /*List<List<string>> procedureDF = new List<List<string>>();
-        rootDF = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
-        rootDF.name = start.Data;
-        rootDF.data = start.Data;
 
-        //build DF tree
-        BuildDF(rootBM, goal, rootDF, procedureDF);
-
-        //new gameObject for BF tree
+        /*//new gameObject for BF tree
         List<List<string>> procedureBF = new List<List<string>>();
         rootBF = new GameObject("", typeof(TreeNode)).GetComponent<TreeNode>();
         rootBF.name = start.Data;
@@ -211,7 +220,11 @@ public class MakeTree : MonoBehaviour
         List<TreeNode> current = root.Children;
         for (int i = 0; i < current.Count; i++)
         {
-            current[i].transform.localPosition += new Vector3(0.4f * ((i == 0) ? 0 : current[i - 1].Children.Count), -0.2f, 0);
+            int baseShift = i;
+            if (i != 0 && current[i - 1].Leafs.Count != 0) {
+                baseShift += current[i - 1].Leafs.Count - 1;
+            }
+            current[i].transform.localPosition += new Vector3(0.4f * baseShift, -0.2f, 0);
             AdjustNodes(current[i]);
         }
     }
@@ -269,9 +282,9 @@ public class MakeTree : MonoBehaviour
 
             for (int i = 0; i < oriRoot.Children.Count; i++)
             {
-                TreeNode child = new GameObject("" + oriRoot.Children[i].Data, typeof(TreeNode)).GetComponent<TreeNode>();
+                TreeNode child = Instantiate(treeNode).GetComponent<TreeNode>();
+                child.name = oriRoot.Children[i].Data;
                 child.Data = oriRoot.Children[i].Data;
-                child.Parent = newRoot;
                 newRoot.AddChild(child);
             }
 
@@ -470,5 +483,41 @@ public class MakeTree : MonoBehaviour
               return;
             }
         }
+    }
+
+    public IEnumerator AnimateDFSteps(List<List<string>> steps, TreeNode root)
+    {
+        foreach (TreeNode node in root.GetComponentsInChildren<TreeNode>())
+        {
+            node.GetComponent<SpriteRenderer>().color = Color.gray;
+        }
+        steps.RemoveAt(0);
+        root.GetComponent<SpriteRenderer>().color = Color.yellow;
+        foreach (List<string> step in steps)
+        {
+            bool first = true;
+            foreach (string path in step)
+            {
+                yield return new WaitForSeconds(0.5f);
+                FindNodeByPath(path, root).GetComponent<SpriteRenderer>().color = first ? Color.yellow : Color.blue;
+                if (first)
+                {
+                    first = false;
+                }
+            }
+        }
+        yield return null;
+        
+    }
+    TreeNode FindNodeByPath(string path, TreeNode root)
+    {
+        List<char> dataPath = path.ToList();
+        IEnumerable<(TreeNode, TreeNode)> nodes = root.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
+        do
+        {
+            nodes = nodes.Where(e => e.Item2.Data == "" + dataPath.Last()).Select(e => (e.Item1, e.Item2.Parent)).Where(e => !(e.Parent is null)).ToList();
+            dataPath.RemoveAt(dataPath.Count - 1);
+        } while (nodes.Count() != 1);
+        return nodes.First().Item1;
     }
 }
