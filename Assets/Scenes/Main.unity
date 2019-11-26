@@ -681,6 +681,8 @@ MonoBehaviour:
   mapNode: {fileID: 3182685885623035975, guid: 8cf7f2c156ddc1e4a94f04ec29977b9e, type: 3}
   treeNode: {fileID: 1459535174116349004, guid: e052c0a5a03397c4284f0c59d69885a3,
     type: 3}
+  linePrefab: {fileID: 8724863242582070121, guid: 37fa2ca3d26980a499fff7c8f8a49f92,
+    type: 3}
 --- !u!114 &643788217
 MonoBehaviour:
   m_ObjectHideFlags: 0

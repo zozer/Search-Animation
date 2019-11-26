@@ -10,7 +10,7 @@ public class MakeTree : MonoBehaviour
     public TreeNode rootBF;
     public GameObject mapNode;
     public GameObject treeNode;
-
+    public GameObject linePrefab;
     public List<List<string>> DFSearch(MapNode start, MapNode end)
     {
         List<List<string>> procedureDF = new List<List<string>>();
@@ -162,7 +162,7 @@ public class MakeTree : MonoBehaviour
     /// Adjust nodes visually on the screen to look somewhat presentable
     /// </summary>
     /// <param name="root"></param>
-    public void AdjustNodes(TreeNode root)
+    public void AdjustNodes(TreeNode root, GameObject objectRoot = null, float parentOffset = 0)
     {
         //adjust werid stuff unity does
         if (root == rootBM)
@@ -172,7 +172,21 @@ public class MakeTree : MonoBehaviour
                 e.transform.localPosition = (Vector2)e.transform.localPosition;
                 e.transform.localScale = Vector2.one;
             });
-            root.transform.localPosition += new Vector3(-900, 200);
+            root.transform.localPosition += new Vector3(-900, 300);
+            
+            //create blank root so we can adjust root properly
+            GameObject blankRoot = new GameObject();
+            blankRoot.AddComponent<RectTransform>();
+            blankRoot.transform.SetParent(root.transform.parent);
+            blankRoot.transform.localPosition = Vector3.zero;
+            root.transform.SetParent(blankRoot.transform);
+            Vector2 scale = root.transform.localScale;
+            blankRoot.transform.localScale *= scale;
+            root.transform.localScale /= scale;
+            root.transform.localPosition /= scale;
+            parentOffset = 0.2f * (root.Leafs.Count - 1);
+            root.transform.localPosition -= new Vector3(root.transform.localPosition.x, 0, 0);
+            objectRoot = blankRoot;
         }
         //end adjust
         List<TreeNode> current = root.Children;
@@ -182,8 +196,12 @@ public class MakeTree : MonoBehaviour
             if (i != 0 && current[i - 1].Leafs.Count != 0) {
                 baseShift += current[i - 1].Leafs.Count - 1;
             }
-            current[i].transform.localPosition += new Vector3(0.4f * baseShift, -0.2f, 0);
-            AdjustNodes(current[i]);
+            float offset = 0.2f * (current[i].Leafs.Count - 1);
+            current[i].transform.localPosition += new Vector3((0.4f * baseShift) - parentOffset + offset, -0.3f, 0);
+            AdjustNodes(current[i], objectRoot, offset);
+            LineRenderer line = Instantiate(linePrefab, objectRoot.transform).GetComponent<LineRenderer>();
+            line.SetPositions(new Vector3[] { (Vector2)root.transform.position, (Vector2)current[i].transform.position });
+            line.startColor = line.endColor = Color.yellow;
         }
     }
 
@@ -453,7 +471,6 @@ public class MakeTree : MonoBehaviour
         {
             nodes = nodes.Where(e => e.Item2.Data == "" + dataPath.Last())
                 .Select(e => (e.Item1, e.Item2.Parent))
-                .Where(e => !(e.Parent is null))
                 .ToList();
             dataPath.RemoveAt(dataPath.Count - 1);
         } while (nodes.Count() != 1);

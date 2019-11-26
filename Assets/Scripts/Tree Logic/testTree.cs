@@ -11,16 +11,14 @@ public class TestTree : MonoBehaviour
     {
         MakeTree test = GetComponent<MakeTree>();
         test.CreateTest();
-        List<List<string>> ret = test.DFSearch(FindObjectsOfType<MapNode>().First(e => e.Data == "s"), FindObjectsOfType<MapNode>().First(e => e.Data == "g"));
-        StartCoroutine(test.AnimateSteps(ret, test.rootBM));
+        List<List<string>> ret = test.BFSearch(FindObjectsOfType<MapNode>().First(e => e.Data == "s"), FindObjectsOfType<MapNode>().First(e => e.Data == "g"));
+
         //test.AnimateDFSteps(ret, test.rootBM);
         foreach (MapNode obj in FindObjectsOfType<MapNode>())
         {
             obj.gameObject.SetActive(false);
         }
-        //test.rootBM.Debug();
-        //test.rootDF.Debug();
-        //test.rootBF.Debug();
         test.AdjustNodes(test.rootBM);
+        StartCoroutine(test.AnimateSteps(ret, test.rootBM));
     }
 }

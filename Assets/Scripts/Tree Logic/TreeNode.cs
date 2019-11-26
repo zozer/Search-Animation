@@ -18,7 +18,7 @@ public class TreeNode : MonoBehaviour
     public TreeNode Parent
     {
         get => transform.parent?.GetComponent<TreeNode>();
-        set => transform.SetParent(value.transform);
+        set => transform.SetParent(value?.transform);
     }
     public List<TreeNode> Children => transform.GetComponentsInChildren<TreeNode>().Where(e => e.Parent == this).ToList();
     public List<TreeNode> Leafs => transform.GetComponentsInChildren<TreeNode>().Where(e => e.Children.Count == 0).ToList();

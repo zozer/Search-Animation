@@ -271,8 +271,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     tempList.Add((node, child));
                     GameObject tempLine = Instantiate(linePrefab, canvasArea.transform);
                     LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
-                    tempRend.startColor = Color.red;
-                    tempRend.endColor = Color.red;
+                    tempRend.startColor = tempRend.endColor = Color.red;
                     tempRend.SetPositions(new Vector3[] { node.transform.position, child.transform.position });
                 }
             }
@@ -368,11 +367,12 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             return;
         }
-        GameObject treeRoot = new GameObject("s", typeof(TreeNode));
+        DrawTree(start, end);
+        //GameObject treeRoot = new GameObject("s", typeof(TreeNode));
         //treeRoot.GetComponent<TreeNode>().Data = "s";
         //treeRoot.transform.parent = canvasArea.transform;
         //GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), treeRoot.GetComponent<TreeNode>());
-        treeRoot.GetComponent<TreeNode>().Debug();
+        //treeRoot.GetComponent<TreeNode>().Debug();
     }
 
     void CleanUp()
@@ -431,8 +431,17 @@ public class MenuHandler : MonoBehaviour, IDragHandler
 
     void DrawTree(MapNode start, MapNode end)
     {
-        TreeNode root = Instantiate(treeNodePrefab).GetComponent<TreeNode>();
-        //root.Data = start.Data;
-        //GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), root);
+        TreeNode root = Instantiate(treeNodePrefab, canvasArea.transform).GetComponent<TreeNode>();
+        root.Data = start.Data;
+        GetComponent<MakeTree>().rootBM = root;
+        GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), root);
+        GetComponent<MakeTree>().AdjustNodes(root);
+        root.transform.parent.localPosition -= new Vector3(0, 0, 1);
+        List<List<string>> ret = GetComponent<MakeTree>().BFSearch(start, end);
+        foreach (MapNode obj in FindObjectsOfType<MapNode>())
+        {
+            obj.gameObject.SetActive(false);
+        }
+        _ = StartCoroutine(GetComponent<MakeTree>().AnimateSteps(ret, root));
     }
 }
