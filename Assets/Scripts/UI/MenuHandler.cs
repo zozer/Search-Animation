@@ -55,11 +55,15 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     void OnGUI()
     {
         Event e = Event.current;
-        if (CurrentMode == Mode.SelectNode)
+        if (CurrentMode == Mode.SelectNode && e.type == EventType.KeyUp && e.keyCode >= KeyCode.A && e.keyCode <= KeyCode.Z)
         {
-            if (e.type == EventType.KeyUp)
+            SelectedNode.GetComponent<MapNode>().Data = "" + (char)e.keyCode;
+            if (canvasArea.GetComponentsInChildren<MapNode>().Count(n => n.Data == "" + (char)e.keyCode) > 1)
             {
-                SelectedNode.GetComponent<MapNode>().Data = "" + (char)e.keyCode;
+                canvasArea.GetComponentsInChildren<MapNode>()
+                    .Where(n => n.Data == "" + (char)e.keyCode)
+                    .ToList()
+                    .ForEach(n => n.GetComponent<SpriteRenderer>().color = Color.red);
             }
         }
     }
@@ -367,12 +371,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             return;
         }
+        if (mapNodes.Any(e=>e.GetComponent<SpriteRenderer>().color == Color.red))
+        {
+            return;
+        }
         DrawTree(start, end);
-        //GameObject treeRoot = new GameObject("s", typeof(TreeNode));
-        //treeRoot.GetComponent<TreeNode>().Data = "s";
-        //treeRoot.transform.parent = canvasArea.transform;
-        //GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), treeRoot.GetComponent<TreeNode>());
-        //treeRoot.GetComponent<TreeNode>().Debug();
     }
 
     void CleanUp()
