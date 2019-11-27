@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 public class MenuHandler : MonoBehaviour, IDragHandler
 {
     enum Mode { None, SelectNode, CreateNode, CreateLine, DestoryNode, DestoryLine };
@@ -118,7 +119,6 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     {
                         if (RectTransformUtility.RectangleContainsScreenPoint(canvasArea.GetComponent<RectTransform>(), Input.mousePosition, Camera.main))
                         {
-                            SelectedNode.GetComponent<SpriteRenderer>().color = Color.white;
                             SelectedNode = null;
                             CurrentMode = Mode.None;
                         }
@@ -375,7 +375,13 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             return;
         }
-        DrawTree(start, end);
+        foreach (MapNode node in mapNodes)
+        {
+            node.transform.SetParent(null);
+            DontDestroyOnLoad(node);
+        }
+        SceneManager.LoadScene("Animation");
+        //DrawTree(start, end);
     }
 
     void CleanUp()
@@ -434,17 +440,12 @@ public class MenuHandler : MonoBehaviour, IDragHandler
 
     void DrawTree(MapNode start, MapNode end)
     {
-        TreeNode root = Instantiate(treeNodePrefab, canvasArea.transform).GetComponent<TreeNode>();
-        root.Data = start.Data;
-        GetComponent<MakeTree>().rootBM = root;
-        GetComponent<MakeTree>().BuildBM(start, end, start, new List<string>(), root);
-        GetComponent<MakeTree>().AdjustNodes(root);
-        root.transform.parent.localPosition -= new Vector3(0, 0, 1);
+        /*
         List<List<string>> ret = GetComponent<MakeTree>().BFSearch(start, end);
         foreach (MapNode obj in FindObjectsOfType<MapNode>())
         {
             obj.gameObject.SetActive(false);
-        }
-        _ = StartCoroutine(GetComponent<MakeTree>().AnimateSteps(ret, root));
+        }*/
+        //_ = StartCoroutine(GetComponent<MakeTree>().AnimateSteps(ret, root));
     }
 }

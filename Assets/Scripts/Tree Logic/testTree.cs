@@ -18,7 +18,7 @@ public class TestTree : MonoBehaviour
         {
             obj.gameObject.SetActive(false);
         }
-        test.AdjustNodes(test.rootBM);
-        StartCoroutine(test.AnimateSteps(ret, test.rootBM));
+        //test.AdjustNodes(test.rootBM);
+        //StartCoroutine(test.AnimateSteps(ret, test.rootBM));
     }
 }

@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class MakeTree : MonoBehaviour
 {
+    [HideInInspector]
     public TreeNode rootBM;
+    [HideInInspector]
     public TreeNode rootDF;
+    [HideInInspector]
     public TreeNode rootBF;
     public GameObject mapNode;
     public GameObject treeNode;
@@ -156,52 +159,6 @@ public class MakeTree : MonoBehaviour
                 BuildBM(start, goal, connection, history, child);
             }
             history.Remove(currentData);
-        }
-    }
-    /// <summary>
-    /// Adjust nodes visually on the screen to look somewhat presentable
-    /// </summary>
-    /// <param name="root"></param>
-    public void AdjustNodes(TreeNode root, GameObject objectRoot = null, float parentOffset = 0)
-    {
-        //adjust werid stuff unity does
-        if (root == rootBM)
-        {
-            root.Children.ForEach(e =>
-            {
-                e.transform.localPosition = (Vector2)e.transform.localPosition;
-                e.transform.localScale = Vector2.one;
-            });
-            root.transform.localPosition += new Vector3(-900, 300);
-            
-            //create blank root so we can adjust root properly
-            GameObject blankRoot = new GameObject();
-            blankRoot.AddComponent<RectTransform>();
-            blankRoot.transform.SetParent(root.transform.parent);
-            blankRoot.transform.localPosition = Vector3.zero;
-            root.transform.SetParent(blankRoot.transform);
-            Vector2 scale = root.transform.localScale;
-            blankRoot.transform.localScale *= scale;
-            root.transform.localScale /= scale;
-            root.transform.localPosition /= scale;
-            parentOffset = 0.2f * (root.Leafs.Count - 1);
-            root.transform.localPosition -= new Vector3(root.transform.localPosition.x, 0, 0);
-            objectRoot = blankRoot;
-        }
-        //end adjust
-        List<TreeNode> current = root.Children;
-        for (int i = 0; i < current.Count; i++)
-        {
-            int baseShift = i;
-            if (i != 0 && current[i - 1].Leafs.Count != 0) {
-                baseShift += current[i - 1].Leafs.Count - 1;
-            }
-            float offset = 0.2f * (current[i].Leafs.Count - 1);
-            current[i].transform.localPosition += new Vector3((0.4f * baseShift) - parentOffset + offset, -0.3f, 0);
-            AdjustNodes(current[i], objectRoot, offset);
-            LineRenderer line = Instantiate(linePrefab, objectRoot.transform).GetComponent<LineRenderer>();
-            line.SetPositions(new Vector3[] { (Vector2)root.transform.position, (Vector2)current[i].transform.position });
-            line.startColor = line.endColor = Color.yellow;
         }
     }
 
@@ -426,54 +383,6 @@ public class MakeTree : MonoBehaviour
             }
         }
     }
-
-    public IEnumerator AnimateSteps(List<List<string>> steps, TreeNode root)
-    {
-        foreach (TreeNode node in root.GetComponentsInChildren<TreeNode>())
-        {
-            node.GetComponent<SpriteRenderer>().color = Color.gray;
-        }
-        steps.RemoveAt(0);
-        root.GetComponent<SpriteRenderer>().color = Color.yellow;
-        List<List<TreeNode>> nodeSteps = NodeSteps(steps, root);
-
-        foreach (List<TreeNode> step in nodeSteps)
-        {
-            bool first = true;
-            yield return new WaitForSecondsRealtime(0.5f);
-            foreach (TreeNode node in step)
-            {
-                if (!first && node.GetComponent<SpriteRenderer>().color == Color.blue)
-                {
-                    continue;
-                }
-                node.GetComponent<SpriteRenderer>().color = first ? Color.yellow : Color.blue;
-                if (first)
-                {
-                    first = false;
-                }
-            }
-        }
-        nodeSteps.Last().First().GetComponent<SpriteRenderer>().color = Color.green;
-    }
-
-    List<List<TreeNode>> NodeSteps(List<List<string>> steps, TreeNode root) =>
-        steps.Select(e => e.Select(f => FindNodeByPath(f, root)).ToList()).ToList();
-
     public static void Order(List<MapNode> children) =>
         children.Sort((child1, child2) => child1.Data.CompareTo(child2.Data));
-
-    TreeNode FindNodeByPath(string path, TreeNode root)
-    {
-        List<char> dataPath = path.ToList();
-        IEnumerable<(TreeNode, TreeNode)> nodes = root.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
-        do
-        {
-            nodes = nodes.Where(e => e.Item2.Data == "" + dataPath.Last())
-                .Select(e => (e.Item1, e.Item2.Parent))
-                .ToList();
-            dataPath.RemoveAt(dataPath.Count - 1);
-        } while (nodes.Count() != 1);
-        return nodes.First().Item1;
-    }
 }
