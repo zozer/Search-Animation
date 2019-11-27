@@ -49,6 +49,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     GameObject createdLine = null;
     void Start()
     {
+        foreach (MapNode node in FindObjectsOfType<MapNode>())
+        {
+            node.transform.SetParent(canvasArea.transform);
+            node.transform.localPosition = node.savedPos;
+        }
         CurrentMode = Mode.None;
         canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
         DrawLines();
@@ -377,11 +382,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         }
         foreach (MapNode node in mapNodes)
         {
+            node.savedPos = node.transform.localPosition;
             node.transform.SetParent(null);
             DontDestroyOnLoad(node);
         }
         SceneManager.LoadScene("Animation");
-        //DrawTree(start, end);
     }
 
     void CleanUp()
@@ -436,16 +441,5 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             tempRend.SetPositions(new Vector3[] { new Vector3(corners[0].x, j, 0), new Vector3(corners[3].x, j, 0) });
         }
         totalHLines = j - Mathf.RoundToInt(corners[0].y);
-    }
-
-    void DrawTree(MapNode start, MapNode end)
-    {
-        /*
-        List<List<string>> ret = GetComponent<MakeTree>().BFSearch(start, end);
-        foreach (MapNode obj in FindObjectsOfType<MapNode>())
-        {
-            obj.gameObject.SetActive(false);
-        }*/
-        //_ = StartCoroutine(GetComponent<MakeTree>().AnimateSteps(ret, root));
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class AnimationHandler : MonoBehaviour
 {
@@ -175,7 +176,7 @@ public class AnimationHandler : MonoBehaviour
 
     public void Back()
     {
-
+        SceneManager.LoadScene(0);
     }
 
     void UpdateButtons()

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class MapNode: MonoBehaviour
 {
+    [HideInInspector]
+    public Vector3 savedPos;
     public List<MapNode> Connections = new List<MapNode>();
     public string Data
     {
