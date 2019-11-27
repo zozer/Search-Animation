@@ -23,10 +23,6 @@ public class MakeTree : MonoBehaviour
 
         //build DF tree
         BuildDF(rootBM, end, rootDF, procedureDF);
-        foreach (List<string> l in procedureDF)
-        {
-            //print("(" + string.Join(")(", l) + ")");
-        }
         rootDF.gameObject.SetActive(false);
         return procedureDF;
     }
@@ -45,10 +41,6 @@ public class MakeTree : MonoBehaviour
         //create procedure for BF
         height = CheckHeight(rootBF);
         MakeProcedureBF(rootBF, procedureBF, height, end);
-        foreach (List<string> l in procedureBF)
-        {
-            //print("(" + string.Join(")(", l) + ")");
-        }
         rootBF.gameObject.SetActive(false);
         return procedureBF;
     }

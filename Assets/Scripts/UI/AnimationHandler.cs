@@ -106,15 +106,11 @@ public class AnimationHandler : MonoBehaviour
 
     public void PlayAnimation()
     {
-        if (!animStart)
+        if (treeRoot.GetComponent<SpriteRenderer>().color != Color.white)
         {
-            if (treeRoot.GetComponent<SpriteRenderer>().color != Color.white)
-            {
-                ResetAnim();
-            }
-            _ = StartCoroutine(AnimateSteps(mode == SearchMode.BF ? BFSteps : DFSteps));
+            ResetAnim();
         }
-        
+        _ = StartCoroutine(AnimateSteps(mode == SearchMode.BF ? BFSteps : DFSteps));
     }
 
     public void PauseAnmiation()
@@ -181,11 +177,12 @@ public class AnimationHandler : MonoBehaviour
 
     void UpdateButtons()
     {
+        GameObject.Find("PlayButton").GetComponent<Button>().interactable = !animStart;
         GameObject.Find("ResumeButton").GetComponent<Button>().interactable = pause;
         GameObject.Find("NextStepButton").GetComponent<Button>().interactable = pause;
         GameObject.Find("PreviousStepButton").GetComponent<Button>().interactable = pause;
         GameObject.Find("PauseButton").GetComponent<Button>().interactable = !pause && animStart;
-        
+        GameObject.Find("BackButton").GetComponent<Button>().interactable = !animStart;
     }
     public IEnumerator AnimateSteps(List<List<string>> steps)
     {

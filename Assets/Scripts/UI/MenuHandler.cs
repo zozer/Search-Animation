@@ -17,18 +17,12 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         get => _selectedNode;
         set
         {
-            if (value is null)
+            if (_selectedNode)
             {
-                if (!(_selectedNode is null))
-                {
-                    _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
-                }
-            } else
+                _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
+            }
+            if (value)
             {
-                if (!(_selectedNode is null))
-                {
-                    _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
-                }
                 value.GetComponent<SpriteRenderer>().color = Color.yellow;
             }
             _selectedNode = value;
@@ -49,10 +43,26 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     GameObject createdLine = null;
     void Start()
     {
+        //for purpose of if coming from animation scene
         foreach (MapNode node in FindObjectsOfType<MapNode>())
         {
             node.transform.SetParent(canvasArea.transform);
             node.transform.localPosition = node.savedPos;
+        }
+        List<(MapNode, MapNode)> tempList = new List<(MapNode, MapNode)>();
+        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
+        {
+            foreach (MapNode child in node.Connections)
+            {
+                if (!tempList.Contains((child, node)))
+                {
+                    tempList.Add((node, child));
+                    GameObject tempLine = Instantiate(linePrefab, canvasArea.transform);
+                    LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
+                    tempRend.startColor = tempRend.endColor = Color.red;
+                    tempRend.SetPositions(new Vector3[] { node.transform.position, child.transform.position });
+                }
+            }
         }
         CurrentMode = Mode.None;
         canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
@@ -83,7 +93,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 if (Input.GetMouseButtonDown(0))
                 {
                     currentNode = GetMapNode(MousePosition);
-                    if (!(currentNode is null))
+                    if (currentNode)
                     {
                         SelectedNode = currentNode.gameObject;
                         CurrentMode = Mode.SelectNode;
@@ -94,7 +104,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 if (Input.GetMouseButtonDown(0))
                 {
                     currentNode = GetMapNode(MousePosition);
-                    if (!(currentNode is null))
+                    if (currentNode)
                     {
                         SelectedNode = currentNode.gameObject;
                         CurrentMode = Mode.SelectNode;
@@ -113,7 +123,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 SelectedNode.transform.position = temp;
                 if (canvasArea.GetComponentsInChildren<MapNode>().Any(
                     e => (Vector2)e.GetComponent<RectTransform>().position == temp && e.gameObject != SelectedNode)
-                    ) 
+                    )
                 {
                     SelectedNode.GetComponent<SpriteRenderer>().color = Color.red;
                 }
@@ -131,19 +141,18 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 }
                 break;
             case Mode.CreateLine:
-                if (SelectedNode != null)
+                if (SelectedNode)
                 {
                     LineRenderer tempRend = createdLine.GetComponent<LineRenderer>();
                     tempRend.SetPositions(new Vector3[] { SelectedNode.transform.position, MousePosition });
                 }
                 if (Input.GetMouseButtonDown(0))
                 {
-                    currentNode = GetMapNode(MousePosition);
-                    if (currentNode is null)
+                    if (!(currentNode = GetMapNode(MousePosition)))
                     {
                         break;
                     }
-                    if (SelectedNode == null)
+                    if (!SelectedNode)
                     {
                         SelectedNode = currentNode.gameObject;
                         createdLine = Instantiate(linePrefab, canvasArea.transform);
@@ -159,7 +168,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                             break;
                         }
                         if (canvasArea.GetComponentsInChildren<MapLine>().Any(
-                            e=>(e.connector.Item1 == SelectedNode.GetComponent<MapNode>() && e.connector.Item2 == currentNode)||
+                            e => (e.connector.Item1 == SelectedNode.GetComponent<MapNode>() && e.connector.Item2 == currentNode) ||
                                 (e.connector.Item1 == currentNode && e.connector.Item2 == SelectedNode.GetComponent<MapNode>())))
                         {
                             break;
@@ -176,7 +185,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 }
                 else if (Input.GetMouseButtonDown(1))
                 {
-                    if (createdLine != null)
+                    if (createdLine)
                     {
                         Destroy(createdLine);
                         createdLine = null;
@@ -188,7 +197,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                 if (Input.GetMouseButtonDown(0))
                 {
                     currentNode = GetMapNode(MousePosition);
-                    if (currentNode is null)
+                    if (!currentNode)
                     {
                         break;
                     }
@@ -213,11 +222,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                             break;
                         }
                     }
-                    if (currentNode is null)
+                    if (!currentNode)
                     {
                         break;
                     }
-                    if (SelectedNode is null)
+                    if (!SelectedNode)
                     {
                         SelectedNode = currentNode.gameObject;
                     } else
@@ -367,12 +376,12 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         UpdateButtonStatus();
         IEnumerable<MapNode> mapNodes = canvasArea.GetComponentsInChildren<MapNode>();
         MapNode start = mapNodes.FirstOrDefault(e => e.Data == "s");
-        if (start is null)
+        if (!start)
         {
             return;
         }
         MapNode end = mapNodes.FirstOrDefault(e => e.Data == "g");
-        if (end is null)
+        if (!end)
         {
             return;
         }

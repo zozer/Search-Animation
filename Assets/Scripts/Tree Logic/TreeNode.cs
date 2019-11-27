@@ -37,7 +37,7 @@ public class TreeNode : MonoBehaviour
             current = node;
             branches.Add(node.Data);
             current = current.Parent;
-            while (current != null)
+            while (current)
             {
                 branches[branches.Count - 1] += current.Data;
                 current = current.Parent;
