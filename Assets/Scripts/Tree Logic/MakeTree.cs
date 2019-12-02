@@ -168,10 +168,11 @@ public class MakeTree : MonoBehaviour
     public static void Order(List<MapNode> children) =>
         children.Sort((child1, child2) => child1.Data.CompareTo(child2.Data));
 
-    TreeNode FindNodeByPath(string path)
+    TreeNode FindNodeByPath(string path) => FindNodeByPath(rootBM, path);
+    public static TreeNode FindNodeByPath(TreeNode root, string path)
     {
         List<char> dataPath = path.ToList();
-        IEnumerable<(TreeNode, TreeNode)> nodes = rootBM.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
+        IEnumerable<(TreeNode, TreeNode)> nodes = root.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
         do
         {
             nodes = nodes.Where(e => e.Item2.Data == dataPath.Last())

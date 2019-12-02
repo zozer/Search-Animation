@@ -43,6 +43,8 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     GameObject createdLine = null;
     void Start()
     {
+        canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
+        DrawLines();
         //for purpose of if coming from animation scene
         foreach (MapNode node in FindObjectsOfType<MapNode>())
         {
@@ -65,8 +67,6 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             }
         }
         CurrentMode = Mode.None;
-        canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
-        DrawLines();
     }
     void OnGUI()
     {

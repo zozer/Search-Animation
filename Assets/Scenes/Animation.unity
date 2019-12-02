@@ -976,6 +976,8 @@ GameObject:
   - component: {fileID: 561998518}
   - component: {fileID: 561998520}
   - component: {fileID: 561998519}
+  - component: {fileID: 561998521}
+  - component: {fileID: 561998522}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -1047,6 +1049,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 561998517}
   m_CullTransparentMesh: 0
+--- !u!223 &561998521
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561998517}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 2
+  m_TargetDisplay: 0
+--- !u!114 &561998522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561998517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &566839320
 GameObject:
   m_ObjectHideFlags: 0
@@ -1131,6 +1171,7 @@ GameObject:
   - component: {fileID: 570929795}
   - component: {fileID: 570929797}
   - component: {fileID: 570929796}
+  - component: {fileID: 570929798}
   m_Layer: 5
   m_Name: StepDisplay
   m_TagString: Untagged
@@ -1194,6 +1235,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 570929794}
   m_CullTransparentMesh: 0
+--- !u!223 &570929798
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570929794}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 2
+  m_TargetDisplay: 0
 --- !u!1 &572211624
 GameObject:
   m_ObjectHideFlags: 0
@@ -1516,8 +1578,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rootBM: {fileID: 0}
-  rootDF: {fileID: 0}
-  rootBF: {fileID: 0}
   mapNode: {fileID: 3182685885623035975, guid: 8cf7f2c156ddc1e4a94f04ec29977b9e, type: 3}
   treeNode: {fileID: 1459535174116349004, guid: e052c0a5a03397c4284f0c59d69885a3,
     type: 3}

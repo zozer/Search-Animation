@@ -4,8 +4,9 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
-public class AnimationHandler : MonoBehaviour
+public class AnimationHandler : MonoBehaviour, IDragHandler
 {
     private enum SearchMode { BF, DF };
     public GameObject canvasArea;
@@ -183,6 +184,7 @@ public class AnimationHandler : MonoBehaviour
         GameObject.Find("PreviousStepButton").GetComponent<Button>().interactable = pause;
         GameObject.Find("PauseButton").GetComponent<Button>().interactable = !pause && animStart;
         GameObject.Find("BackButton").GetComponent<Button>().interactable = !animStart;
+        GameObject.Find("Dropdown").GetComponent<Dropdown>().interactable = !animStart;
     }
     public IEnumerator AnimateSteps(List<List<string>> steps)
     {
@@ -233,17 +235,27 @@ public class AnimationHandler : MonoBehaviour
         stepTextField.text = "";
     }
 
-    TreeNode FindNodeByPath(string path)
+    TreeNode FindNodeByPath(string path) => MakeTree.FindNodeByPath(treeRoot, path);
+
+    public void OnDrag(PointerEventData data)
     {
-        List<char> dataPath = path.ToList();
-        IEnumerable<(TreeNode, TreeNode)> nodes = treeRoot.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
-        do
+        foreach (LineRenderer line in canvasArea.GetComponentsInChildren<LineRenderer>())
         {
-            nodes = nodes.Where(e => e.Item2.Data == dataPath.Last())
-                .Select(e => (e.Item1, e.Item2.Parent))
-                .ToList();
-            dataPath.RemoveAt(dataPath.Count - 1);
-        } while (nodes.Count() != 1);
-        return nodes.First().Item1;
+            Destroy(line.gameObject);
+        }
+        treeRoot.transform.parent.localPosition += (Vector3)data.delta;
+        DrawLines(treeRoot);
+
+    }
+
+    void DrawLines(TreeNode root)
+    {
+        foreach (TreeNode child in root.Children)
+        {
+            LineRenderer line = Instantiate(linePrefab, treeRoot.transform.parent.transform).GetComponent<LineRenderer>();
+            line.SetPositions(new Vector3[] { (Vector2)root.transform.position, (Vector2)child.transform.position });
+            line.startColor = line.endColor = Color.yellow;
+            DrawLines(child);
+        }   
     }
 }
