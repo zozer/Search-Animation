@@ -173,7 +173,7 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
 
     public void Back()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("Main");
     }
 
     void UpdateButtons()
