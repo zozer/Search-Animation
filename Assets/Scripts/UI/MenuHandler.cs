@@ -73,13 +73,14 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         Event e = Event.current;
         if (CurrentMode == Mode.SelectNode && e.type == EventType.KeyUp && e.keyCode >= KeyCode.A && e.keyCode <= KeyCode.Z)
         {
-            SelectedNode.GetComponent<MapNode>().Data = "" + (char)e.keyCode;
-            if (canvasArea.GetComponentsInChildren<MapNode>().Count(n => n.Data == "" + (char)e.keyCode) > 1)
+            char currentKey = (char)e.keyCode;
+            SelectedNode.GetComponent<MapNode>().Data = currentKey;
+            if (canvasArea.GetComponentsInChildren<MapNode>().Count(n => n.Data == currentKey) > 1)
             {
                 canvasArea.GetComponentsInChildren<MapNode>()
-                    .Where(n => n.Data == "" + (char)e.keyCode)
-                    .ToList()
-                    .ForEach(n => n.GetComponent<SpriteRenderer>().color = Color.red);
+                          .Where(n => n.Data == currentKey)
+                          .ToList()
+                          .ForEach(n => n.GetComponent<SpriteRenderer>().color = Color.red);
             }
         }
     }
@@ -375,12 +376,12 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         CurrentMode = Mode.None;
         UpdateButtonStatus();
         IEnumerable<MapNode> mapNodes = canvasArea.GetComponentsInChildren<MapNode>();
-        MapNode start = mapNodes.FirstOrDefault(e => e.Data == "s");
+        MapNode start = mapNodes.FirstOrDefault(e => e.Data == 's');
         if (!start)
         {
             return;
         }
-        MapNode end = mapNodes.FirstOrDefault(e => e.Data == "g");
+        MapNode end = mapNodes.FirstOrDefault(e => e.Data == 'g');
         if (!end)
         {
             return;

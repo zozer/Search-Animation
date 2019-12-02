@@ -7,38 +7,41 @@ public class MakeTree : MonoBehaviour
 {
     [HideInInspector]
     public TreeNode rootBM;
-    [HideInInspector]
-    public TreeNode rootDF;
-    [HideInInspector]
-    public TreeNode rootBF;
     public GameObject mapNode;
     public GameObject treeNode;
     public GameObject linePrefab;
-    public List<List<string>> DFSearch(MapNode start, MapNode end)
+    public List<List<string>> DFSearch(char end)
     {
-        List<List<string>> procedureDF = new List<List<string>>();
-        rootDF = Instantiate(treeNode, transform).GetComponent<TreeNode>();
-        rootDF.Data = start.Data;
-        rootDF.name = "DF-" + start.Data;
+        //add start node as the first line
+        List<List<string>> procedure = new List<List<string>>() { new List<string> { $"{rootBM.Data}" } };
 
-        //build DF tree
-        BuildDF(rootBM, end, procedureDF);
-        rootDF.gameObject.SetActive(false);
-        return procedureDF;
+        //perform the search until either the the next item to be searched is a goal node or the are no more nodes to check
+        while (procedure.Last().Count > 0 && procedure.Last().First().Last() != end)
+        {
+            string branch = procedure.Last().First();
+            TreeNode current = FindNodeByPath(branch);
+            List<string> newProcedure = current.Children.Select(e => branch + e.Data).ToList();
+            newProcedure.AddRange(procedure.Last().Skip(1));
+            procedure.Add(newProcedure);
+        }
+        return procedure;
     }
 
-    public List<List<string>> BFSearch(MapNode start, MapNode end)
+    public List<List<string>> BFSearch(char end)
     {
-        List<List<string>> procedureBF = new List<List<string>>();
-        rootBF = Instantiate(treeNode, transform).GetComponent<TreeNode>();
-        rootBF.Data = start.Data;
-        rootBF.name = "BF-" + start.Data;
-        int height = CheckHeight(rootBM);
+        //add start node as the first line
+        List<List<string>> procedure = new List<List<string>>() { new List<string> { $"{rootBM.Data}" } };
 
-        //create procedure for BF
-        MakeProcedureBF(rootBF, procedureBF, height, end);
-        rootBF.gameObject.SetActive(false);
-        return procedureBF;
+        //perform the search until either the the next item to be searched is a goal node or the are no more nodes to check
+        while (procedure.Last().Count > 0 && procedure.Last().First().Last() != end)
+        {
+            string branch = procedure.Last().First();
+            List<string> newProcedure = procedure.Last().Skip(1).ToList();
+            TreeNode current = FindNodeByPath(branch);
+            newProcedure.AddRange(current.Children.Select(e => branch + e.Data));
+            procedure.Add(newProcedure);
+        }
+        return procedure;
     }
     /// <summary>
     /// For testing purpose only
@@ -56,14 +59,14 @@ public class MakeTree : MonoBehaviour
         MapNode goal = Instantiate(mapNode).GetComponent<MapNode>();
 
         //enter data for nodes
-        start.Data = "s";
-        nodez.Data = "z";
-        nodea.Data = "a";
-        nodex.Data = "x";
-        noded.Data = "d";
-        nodec.Data = "c";
-        nodef.Data = "f";
-        goal.Data = "g";
+        start.Data = 's';
+        nodez.Data = 'z';
+        nodea.Data = 'a';
+        nodex.Data = 'x';
+        noded.Data = 'd';
+        nodec.Data = 'c';
+        nodef.Data = 'f';
+        goal.Data = 'g';
 
         //add links to each node
         start.Connections.Add(nodex);
@@ -99,17 +102,15 @@ public class MakeTree : MonoBehaviour
         rootBM.Data = start.Data;
 
         //build BM tree
-        BuildBM(start, goal, start, new List<string>(), rootBM);
+        BuildBM(start, goal, start, new List<char>(), rootBM);
 
-        int height = CheckHeight(rootBM);
-        List<List<string>> procedureDF = new List<List<string>>();
-        MakeProcedureBF(rootBM, procedureDF, height, goal);
+        /*List<List<string>> procedureDF = BuildBF(rootBM, goal.Data);
         for (int i = 0; i < procedureDF.Count; i++) {
             for(int j = 0; j < procedureDF[i].Count; j++)
             {
                 Debug.Log(procedureDF[i][j]);
             }
-        }
+        }*/
     }
 
     /// <summary>
@@ -121,7 +122,7 @@ public class MakeTree : MonoBehaviour
     /// (It must be the same as the starting node at the beginning)</param>
     /// <param name="history">history nodes that had visited in the path</param>
     /// <param name="root">root of the tree that we want to build</param>
-    public void BuildBM(MapNode start, MapNode goal, MapNode current, List<string> history, TreeNode root)
+    public void BuildBM(MapNode start, MapNode goal, MapNode current, List<char> history, TreeNode root)
     {
         //check if the node is leaf or goal
         if (current.Connections.Count == 0 || current.Data == goal.Data)
@@ -136,15 +137,15 @@ public class MakeTree : MonoBehaviour
         }
 
         //initilizing variables
-        string startData = start.Data;
-        string currentData = current.Data;
+        char startData = start.Data;
+        char currentData = current.Data;
 
         //travsering nodes
         foreach (MapNode connection in current.Connections)
         {
             //create new node for the tree
             history.Add(currentData);
-            string nextData = connection.Data;
+            char nextData = connection.Data;
 
             //check if the node is visted or it is a start node
             if (currentData == startData || nextData != startData &&
@@ -161,192 +162,23 @@ public class MakeTree : MonoBehaviour
     }
 
     /// <summary>
-    /// build depth-first tree
-    /// </summary>
-    /// <param name="oriRoot">root of british museum tree</param>
-    /// <param name="goal">goal node</param>
-    /// <param name="newRoot">root of depth-first tree</param>
-    /// <param name="procedure">list to keep procedure of building depth-first tree</param>
-    /// <returns></returns>
-    private bool BuildDF(TreeNode oriRoot, MapNode goal, List<List<string>> procedure)
-    {
-
-        //stop when goal is found
-        if (oriRoot.Data == goal.Data)
-        {
-            return true;
-        }
-
-        //if the current has no child, delete the first thing in the procedure
-        //and add to list as a new line
-        else if (oriRoot.Children.Count == 0)
-        {
-
-            List<string> temp = new List<string>(procedure[procedure.Count - 1]);
-            temp.RemoveAt(0);
-            procedure.Add(temp);
-            return false;
-        }
-
-        //if the procedure is empty,
-        //add start node as the first line
-        if (procedure.Count == 0)
-        {
-            procedure.Add(new List<string>() { oriRoot.Data });
-        }
-
-        //copy the last line
-        List<string> newProcedure = new List<string>(procedure[procedure.Count - 1]);
-        string branch = newProcedure[0];
-
-        //remove the first element from the line
-        //to indicate visited
-        newProcedure.RemoveAt(0);
-
-        //add all children of the current node to the front in alphabetical order
-        for (int i = 0; i < oriRoot.Children.Count; i++)
-        {
-            string newBranch = branch + oriRoot.Children[i].Data;
-            newProcedure.Insert(i, newBranch);
-        }
-
-        //add to the procedure as new line
-        procedure.Add(newProcedure);
-
-        //visit all nodes in the tree
-        for (int i = 0; i < oriRoot.Children.Count; i++)
-        {
-            if (BuildDF(oriRoot.Children[i], goal, procedure))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// find the height of the tree
-    /// </summary>
-    /// <param name="root">root of the tree</param>
-    /// <returns></returns>
-    private int CheckHeight(TreeNode root)
-    {
-        //base height is 1
-        if (root.Children.Count == 0)
-        {
-            return 1;
-        }
-
-        int height = 0;
-        //loop through all the branch and calculate the height
-        foreach (TreeNode child in root.Children)
-        {
-            int current = CheckHeight(child);
-
-            //choose the highest child
-            if (height < current)
-            {
-                height = current;
-            }
-        }
-
-        return height + 1;
-    }
-
-    /// <summary>
-    /// travsering BF tree
-    /// </summary>
-    /// <param name="root">root of the tree</param>
-    /// <param name="procedureBF">list of list for storage of procedure</param>
-    /// <param name="level">current level in the tree</param>
-    /// <param name="goal">goal node</param>
-    /// <param name="branch">a string that stores the first procedure in each line</param>
-    /// <param name="newProcedure">a list of procedure that presents a line</param>
-    /// <returns></returns>
-    private bool ProcedureBFHelp(TreeNode root, List<List<string>> procedureBF, int level, MapNode goal, List<string> newProcedure, string branch)
-    {
-        //if the level is not the chosen level,
-        //move on
-        if (level != 1)
-        {
-            //loop through all chilren and stop when finding goal
-            //create a new line after each visit
-            foreach (TreeNode child in root.Children)
-            {
-                bool find = ProcedureBFHelp(child, procedureBF, level - 1, goal, newProcedure, branch);
-                newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
-                branch = newProcedure[0];
-                newProcedure.RemoveAt(0);
-                if (find)
-                {
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            //stop when we find the goal
-            if (root.Data == goal.Data)
-            {
-                return true;
-            }
-
-            //create new line without the first element of the last line
-            else if(root.Children.Count == 0)
-            {
-                procedureBF.Add(newProcedure);
-                newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
-                newProcedure.RemoveAt(0);
-                return false;
-            }
-
-            //add all children to the end of the new line
-            foreach (TreeNode child in root.Children)
-            {
-                string temp = branch;
-                branch += child.Data;
-                newProcedure.Add(branch);
-                branch = temp;
-            }
-            procedureBF.Add(newProcedure);
-            return false;
-        }
-
-        return false;
-    }
-    
-    /// <summary>
-    /// travsering BF and creating procedure
-    /// </summary>
-    /// <param name="oriRoot">root for the BF tree</param>
-    /// <param name="procedureBF">list of list for procedure</param>
-    /// <param name="height">height of the tree</param>
-    /// <param name="goal">goal node</param>
-    private void MakeProcedureBF(TreeNode oriRoot, List<List<string>> procedureBF, int height, MapNode goal)
-    {
-        //add start node as the first line
-        procedureBF.Add(new List<string> { oriRoot.Data });
-
-        //create new line for each child in each level
-        for (int i = 1; i <= height; i++)
-        {
-            List<string> newProcedure = new List<string>(procedureBF[procedureBF.Count - 1]);
-            string branch = newProcedure[0];
-            newProcedure.RemoveAt(0);
-
-            //stop when we find the goal
-            if (ProcedureBFHelp(oriRoot, procedureBF, i, goal, newProcedure, branch))
-            {
-              return;
-            }
-        }
-    }
-
-    /// <summary>
     /// put all children in alphabetical order
     /// </summary>
     /// <param name="children">a list of nodes that are children of the current node</param>
     public static void Order(List<MapNode> children) =>
         children.Sort((child1, child2) => child1.Data.CompareTo(child2.Data));
+
+    TreeNode FindNodeByPath(string path)
+    {
+        List<char> dataPath = path.ToList();
+        IEnumerable<(TreeNode, TreeNode)> nodes = rootBM.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
+        do
+        {
+            nodes = nodes.Where(e => e.Item2.Data == dataPath.Last())
+                .Select(e => (e.Item1, e.Item2.Parent))
+                .ToList();
+            dataPath.RemoveAt(dataPath.Count - 1);
+        } while (nodes.Count() != 1);
+        return nodes.First().Item1;
+    }
 }

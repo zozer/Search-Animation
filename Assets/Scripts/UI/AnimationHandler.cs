@@ -27,13 +27,13 @@ public class AnimationHandler : MonoBehaviour
         IEnumerable<MapNode> mapNodes = FindObjectsOfType<MapNode>();
         if (mapNodes.Count() > 0)
         {
-            MapNode start = mapNodes.FirstOrDefault(e => e.Data == "s");
-            if (start is null)
+            MapNode start = mapNodes.FirstOrDefault(e => e.Data == 's');
+            if (!start)
             {
                 return;
             }
-            MapNode end = mapNodes.FirstOrDefault(e => e.Data == "g");
-            if (end is null)
+            MapNode end = mapNodes.FirstOrDefault(e => e.Data == 'g');
+            if (!end)
             {
                 return;
             }
@@ -45,12 +45,12 @@ public class AnimationHandler : MonoBehaviour
             treeRoot.Data = start.Data;
             treeBuilder = GetComponent<MakeTree>();
             treeBuilder.rootBM = treeRoot;
-            treeBuilder.BuildBM(start, end, start, new List<string>(), treeRoot);
+            treeBuilder.BuildBM(start, end, start, new List<char>(), treeRoot);
             AdjustNodes(treeRoot);
             treeRoot.transform.parent.localPosition -= new Vector3(0, 0, 1);
 
-            BFSteps = treeBuilder.BFSearch(start, end);
-            DFSteps = treeBuilder.DFSearch(start, end);
+            BFSteps = treeBuilder.BFSearch(end.Data);
+            DFSteps = treeBuilder.DFSearch(end.Data);
         }
 
         UpdateButtons();
@@ -217,10 +217,6 @@ public class AnimationHandler : MonoBehaviour
         for (int i = 0; i < step.Count; i++)
         {
             TreeNode node = FindNodeByPath(step[i]);
-            if (i != 0 && node.GetComponent<SpriteRenderer>().color == Color.blue)
-            {
-                continue;
-            }
             node.GetComponent<SpriteRenderer>().color = i == 0 ? Color.yellow : Color.blue;
             stepTextField.text += " (" + step[i] + ")";
         }
@@ -243,7 +239,7 @@ public class AnimationHandler : MonoBehaviour
         IEnumerable<(TreeNode, TreeNode)> nodes = treeRoot.GetComponentsInChildren<TreeNode>().Select(e => (e, e));
         do
         {
-            nodes = nodes.Where(e => e.Item2.Data == "" + dataPath.Last())
+            nodes = nodes.Where(e => e.Item2.Data == dataPath.Last())
                 .Select(e => (e.Item1, e.Item2.Parent))
                 .ToList();
             dataPath.RemoveAt(dataPath.Count - 1);

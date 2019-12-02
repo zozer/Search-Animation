@@ -6,13 +6,13 @@ using UnityEngine.UI;
 
 public class TreeNode : MonoBehaviour
 {
-    public string Data
+    public char Data
     {
-        get => GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text;
+        get => GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text.FirstOrDefault();
         set
         {
-            name = value;
-            GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text = value;
+            name = $"{value}";
+            GetComponentsInChildren<Text>().Where(e => e.transform.parent == transform).First().text = $"{value}";
         }
     }
     public TreeNode Parent
@@ -29,7 +29,7 @@ public class TreeNode : MonoBehaviour
 
     public void Debug()
     {
-        List<string> branches = new List<string>();
+        List<char> branches = new List<char>();
         List<TreeNode> leaf = Leafs;
         TreeNode current;
         foreach (TreeNode node in leaf)
@@ -43,9 +43,9 @@ public class TreeNode : MonoBehaviour
                 current = current.Parent;
             }
         }
-        foreach(string branch in branches)
+        foreach(char branch in branches)
         {
-            print(string.Join("->", branch.Reverse().ToList()));
+            //print(string.Join("->", branch.Reverse().ToList()));
         }
     }
 }
