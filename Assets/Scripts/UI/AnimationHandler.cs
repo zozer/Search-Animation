@@ -29,19 +29,7 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
         if (mapNodes.Count() > 0)
         {
             MapNode start = mapNodes.FirstOrDefault(e => e.Data == 's');
-            if (!start)
-            {
-                return;
-            }
             MapNode end = mapNodes.FirstOrDefault(e => e.Data == 'g');
-            if (!end)
-            {
-                return;
-            }
-            if (mapNodes.Any(e => e.GetComponent<SpriteRenderer>().color == Color.red))
-            {
-                return;
-            }
             treeRoot = Instantiate(treeNode, canvasArea.transform).GetComponent<TreeNode>();
             treeRoot.Data = start.Data;
             treeBuilder = GetComponent<MakeTree>();
@@ -219,6 +207,13 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
         for (int i = 0; i < step.Count; i++)
         {
             TreeNode node = FindNodeByPath(step[i]);
+            if (i == 0)
+            {
+                print(canvasArea.GetComponent<RectTransform>().rect);
+                print(node.transform.localPosition);
+                print(node.transform.position);
+                print(canvasArea.GetComponent<RectTransform>().rect.Contains(node.transform.localPosition));
+            }
             node.GetComponent<SpriteRenderer>().color = i == 0 ? Color.yellow : Color.blue;
             stepTextField.text += " (" + step[i] + ")";
         }

@@ -19,7 +19,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         {
             if (_selectedNode)
             {
-                _selectedNode.GetComponent<SpriteRenderer>().color = Color.white;
+                _selectedNode.GetComponent<SpriteRenderer>().color =
+                    _selectedNode.GetComponent<MapNode>().Data != default(char) &&
+                    canvasArea.GetComponentsInChildren<MapNode>().Count(e => e.Data == _selectedNode.GetComponent<MapNode>().Data) > 1 ?
+                    Color.red :
+                    Color.white;
             }
             if (value)
             {
@@ -33,7 +37,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     public GameObject treeNodePrefab;
     public GameObject canvasArea;
     public GameObject menuArea;
-
+    public GameObject errorBlock;
     private Vector2 MousePosition => Camera.main.ScreenToWorldPoint(Input.mousePosition);
     readonly Vector3[] corners = new Vector3[4];
 
@@ -63,6 +67,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
                     tempRend.startColor = tempRend.endColor = Color.red;
                     tempRend.SetPositions(new Vector3[] { node.transform.position, child.transform.position });
+                    tempLine.GetComponent<MapLine>().connector = (node, child);
                 }
             }
         }
@@ -376,18 +381,29 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         CurrentMode = Mode.None;
         UpdateButtonStatus();
         IEnumerable<MapNode> mapNodes = canvasArea.GetComponentsInChildren<MapNode>();
-        MapNode start = mapNodes.FirstOrDefault(e => e.Data == 's');
-        if (!start)
+        if (mapNodes.Any(e => e.GetComponent<SpriteRenderer>().color == Color.red))
         {
+            _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.nodeError));          
             return;
         }
-        MapNode end = mapNodes.FirstOrDefault(e => e.Data == 'g');
-        if (!end)
+        if (!mapNodes.Any(e => e.Data == 's'))
         {
+            _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.missingStart));
             return;
         }
-        if (mapNodes.Any(e=>e.GetComponent<SpriteRenderer>().color == Color.red))
+        if (!mapNodes.Any(e => e.Data == 'g'))
         {
+            _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.missingEnd));
+            return;
+        }
+        if (mapNodes.Any(e => e.Data == default(char)))
+        {
+            _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.blankNode));
+            return;
+        }
+        if (mapNodes.Any(e => e.Connections.Count == 0))
+        {
+            _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.unconnectedNode));
             return;
         }
         foreach (MapNode node in mapNodes)
