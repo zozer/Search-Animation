@@ -29,19 +29,7 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
         if (mapNodes.Count() > 0)
         {
             MapNode start = mapNodes.FirstOrDefault(e => e.Data == 's');
-            if (!start)
-            {
-                return;
-            }
             MapNode end = mapNodes.FirstOrDefault(e => e.Data == 'g');
-            if (!end)
-            {
-                return;
-            }
-            if (mapNodes.Any(e => e.GetComponent<SpriteRenderer>().color == Color.red))
-            {
-                return;
-            }
             treeRoot = Instantiate(treeNode, canvasArea.transform).GetComponent<TreeNode>();
             treeRoot.Data = start.Data;
             treeBuilder = GetComponent<MakeTree>();
@@ -194,10 +182,10 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
         {
             node.GetComponent<SpriteRenderer>().color = Color.gray;
         }
-        treeRoot.GetComponent<SpriteRenderer>().color = Color.yellow;
+        //treeRoot.GetComponent<SpriteRenderer>().color = Color.yellow;
         //List<List<TreeNode>> nodeSteps = NodeSteps(steps);
 
-        for (currentStep = 1; currentStep < steps.Count; currentStep++)
+        for (currentStep = 0; currentStep < steps.Count; currentStep++)
         {
             yield return new WaitForSecondsRealtime(0.5f);
             yield return new WaitWhile(() => pause);
