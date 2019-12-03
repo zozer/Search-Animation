@@ -15,6 +15,7 @@ public class HelpHandler : MonoBehaviour
     [SerializeField] Text answer2;
     [SerializeField] Text answer3;
     [SerializeField] Text answer4;
+    [SerializeField] Text pageText;
 
     string question1Text = "How to create a node";
     string question2Text = "How to link two nodes together";
@@ -43,11 +44,14 @@ public class HelpHandler : MonoBehaviour
     List<string> questionList = new List<string>();
     List<string> answerList = new List<string>();
 
+    private int questionNumber;
     private int pageNumber;
+    private int totalPageNumber;
 
     void Start()
     {
-        pageNumber = 0;
+        questionNumber = 0;
+        pageNumber = 1;
 
         questionList.Add(question1Text);
         questionList.Add(question2Text);
@@ -73,51 +77,31 @@ public class HelpHandler : MonoBehaviour
         answerList.Add(answer10Text);
         answerList.Add(answer11Text);
 
+        int excess = questionList.Count % 4;
+        totalPageNumber = questionList.Count / 4;
+        
+        if(excess != 0)
+        {
+            totalPageNumber++;
+        }
+
         showQA();
-        pageNumber = pageNumber + 3;
+        questionNumber = questionNumber + 3;
     }
 
     public void PreviousButton()
     {
+        questionNumber = questionNumber - 7;
 
-        pageNumber--;
-        
-        int excess = questionList.Count % 4;
-
-        if (excess == 1)
+        if (questionNumber >= 0)
         {
-            pageNumber = pageNumber - 6;
-        }
-        else if (excess == 2)
-        {
-            pageNumber = pageNumber - 5;
-        }
-        else if (excess == 3)
-        {
-            pageNumber = pageNumber - 4;
-        }
-
-        if (pageNumber >= 0)
-        {
+            pageNumber--;
             showQA();
-            pageNumber = pageNumber + 3;
+            questionNumber = questionNumber + 3;
         }
         else
         {
-            pageNumber++;
-
-            if (excess == 1)
-            {
-                pageNumber = pageNumber + 6;
-            }
-            else if (excess == 2)
-            {
-                pageNumber = pageNumber + 5;
-            }
-            else if (excess == 3)
-            {
-                pageNumber = pageNumber + 4;
-            }
+            questionNumber = questionNumber + 7;
         }
     }
 
@@ -128,7 +112,7 @@ public class HelpHandler : MonoBehaviour
 
     public void NextButton()
     {
-        pageNumber++;
+        questionNumber++;
 
         int excess = questionList.Count % 4;
         int balance = questionList.Count;
@@ -146,36 +130,39 @@ public class HelpHandler : MonoBehaviour
             balance = balance + 1;
         }
 
-        if (pageNumber < balance)
+        if (questionNumber < balance)
         {
+            pageNumber++;
             showQA();
-            pageNumber = pageNumber + 3;
+            questionNumber = questionNumber + 3;
         }
         else
         {
-            pageNumber--;
+            questionNumber--;
         }
     }
 
     private void showQA()
     {
 
-        int question1Block = pageNumber;
-        int question2Block = pageNumber + 1;
-        int question3Block = pageNumber + 2;
-        int question4Block = pageNumber + 3;
+        int question1Block = questionNumber;
+        int question2Block = questionNumber + 1;
+        int question3Block = questionNumber + 2;
+        int question4Block = questionNumber + 3;
 
         addText(question1, answer1, question1Block);
         addText(question2, answer2, question2Block);
         addText(question3, answer3, question3Block);
         addText(question4, answer4, question4Block);
+
+        pageText.text = pageNumber + "/" + totalPageNumber;
     }
 
     void addText(Text questionField, Text answerField, int index)
     {
-        int questionNum = questionList.Count;
+        int totalQuestions = questionList.Count;
 
-        if (index < questionNum)
+        if (index < totalQuestions)
         {
             questionField.text = questionList[index];
             answerField.text = answerList[index];
