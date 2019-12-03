@@ -207,13 +207,6 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
         for (int i = 0; i < step.Count; i++)
         {
             TreeNode node = FindNodeByPath(step[i]);
-            if (i == 0)
-            {
-                print(canvasArea.GetComponent<RectTransform>().rect);
-                print(node.transform.localPosition);
-                print(node.transform.position);
-                print(canvasArea.GetComponent<RectTransform>().rect.Contains(node.transform.localPosition));
-            }
             node.GetComponent<SpriteRenderer>().color = i == 0 ? Color.yellow : Color.blue;
             stepTextField.text += " (" + step[i] + ")";
         }
