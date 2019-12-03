@@ -452,4 +452,9 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         }
         totalHLines = j - Mathf.RoundToInt(corners[0].y);
     }
+
+    public void HelpButton()
+    {
+        SceneManager.LoadScene("Help");
+    }
 }

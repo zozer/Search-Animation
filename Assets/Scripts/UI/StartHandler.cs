@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
-public class Start : MonoBehaviour
+public class StartHandler : MonoBehaviour
 {
 
     // Start is called before the first frame update
