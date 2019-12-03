@@ -406,15 +406,19 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.unconnectedNode));
             return;
         }
-        foreach (MapNode node in mapNodes)
+        SaveMapNodes();
+        SceneManager.LoadScene("Animation");
+    }
+
+    void SaveMapNodes()
+    {
+        foreach (MapNode node in canvasArea.GetComponentsInChildren<MapNode>())
         {
             node.savedPos = node.transform.localPosition;
             node.transform.SetParent(null);
             DontDestroyOnLoad(node);
         }
-        SceneManager.LoadScene("Animation");
     }
-
     void CleanUp()
     {
         switch (CurrentMode)
@@ -471,6 +475,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
 
     public void HelpButton()
     {
+        SaveMapNodes();
         SceneManager.LoadScene("Help");
     }
 }
