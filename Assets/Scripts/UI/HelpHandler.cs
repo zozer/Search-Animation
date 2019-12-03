@@ -18,15 +18,15 @@ public class HelpHandler : MonoBehaviour
 
     string question1Text = "How to create a node";
     string question2Text = "How to link two nodes together";
-    string question3Text = "3...";
-    string question4Text = "4...";
-    string question5Text = "5...";
+    string question3Text = "How to name the node";
+    string question4Text = "How to delete the node";
+    string question5Text = "How to delete the line";
 
     string answer1Text = "Clicks on node button and a blue node will show up. Places the blue node on the drawing space.";
     string answer2Text = "Clicks on link button. Clicks on one node and then another node.";
-    string answer3Text = "3...";
-    string answer4Text = "4...";
-    string answer5Text = "5...";
+    string answer3Text = "Clicks on the node, the node will turn yellow, then type the name of the node";
+    string answer4Text = "Clicks on Delete Node button, when the button turn gray, click node which you want to delete. Note: if the node you deleted link with line, line will automatically delete. ";
+    string answer5Text = "Clicks on Delete line button, when the button turn gray, click two node that the line is connected";
 
 
     List<string> questionList = new List<string>();
