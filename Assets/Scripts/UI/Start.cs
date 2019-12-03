@@ -9,7 +9,7 @@ public class Start : MonoBehaviour
 
     // Start is called before the first frame update
     public void StartButton() {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadScene("Main");
     }
 
     public void QuitButton()
