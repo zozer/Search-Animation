@@ -187,7 +187,7 @@ public class AnimationHandler : MonoBehaviour, IDragHandler
 
         for (currentStep = 0; currentStep < steps.Count; currentStep++)
         {
-            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForSecondsRealtime(1f);
             yield return new WaitWhile(() => pause);
             //in case where next button was pressed to get to the end
             if (currentStep >= steps.Count)

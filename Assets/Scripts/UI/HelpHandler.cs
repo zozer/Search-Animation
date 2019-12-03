@@ -17,18 +17,20 @@ public class HelpHandler : MonoBehaviour
     [SerializeField] Text answer4;
     [SerializeField] Text pageText;
 
-    string question1Text = "How to create a node";
-    string question2Text = "How to link two nodes together";
-    string question3Text = "How to name the node";
-    string question4Text = "How to delete the node";
-    string question5Text = "How to delete the line";
-    string question6Text = "How to show the search tree";
-    string question7Text = "How to play search animation";
-    string question8Text = "How to pause animation";
-    string question9Text = "How to resume search animation";
-    string question10Text = "How to step by step shows animation";
-    string question11Text = "How to swich searh model";
-
+    string question1Text = "How to create a node?";
+    string question2Text = "How to link two nodes together?";
+    string question3Text = "How to name the node?";
+    string question4Text = "How to delete the node?";
+    string question5Text = "How to delete the line?";
+    string question6Text = "How to show the search tree?";
+    string question7Text = "How to play search animation?";
+    string question8Text = "How to pause animation?";
+    string question9Text = "How to resume search animation?";
+    string question10Text = "How to step by step shows animation?";
+    string question11Text = "How to swich searh model?";
+    string question12Text = "Why the node that has duplicated name remains red after I have change the name?";
+    string question13Text = "What do all the colors mean in animation?";
+    string question14Text = "How can I stop making link?";
 
     string answer1Text = "Clicks on node button and a blue node will show up. Places the blue node on the drawing space.";
     string answer2Text = "Clicks on link button. Clicks on one node and then another node.";
@@ -41,6 +43,10 @@ public class HelpHandler : MonoBehaviour
     string answer9Text = "Clicks on resume button, the animation will resume";
     string answer10Text = "Clicks on Play button first, then clicks on pause button. Clicks on Next step button or previous step button to show the animation step by step";
     string answer11Text = "The defult search model is bread-first search model, if user want to switch search, click BF search button, then chose other search model.";
+    string answer12Text = "Clicks on the red node again to refresh the status of node.";
+    string answer13Text = "Grey means not visited. Yellow means visited. Blue means expanding in the procedure. Green means finding the goal";
+    string answer14Text = "Right click to cancel the process of making link. Then, clicks on grey line button to untoggle.";
+
     List<string> questionList = new List<string>();
     List<string> answerList = new List<string>();
 
@@ -64,6 +70,9 @@ public class HelpHandler : MonoBehaviour
         questionList.Add(question9Text);
         questionList.Add(question10Text);
         questionList.Add(question11Text);
+        questionList.Add(question12Text);
+        questionList.Add(question13Text);
+        questionList.Add(question14Text);
 
         answerList.Add(answer1Text);
         answerList.Add(answer2Text);
@@ -76,6 +85,9 @@ public class HelpHandler : MonoBehaviour
         answerList.Add(answer9Text);
         answerList.Add(answer10Text);
         answerList.Add(answer11Text);
+        answerList.Add(answer12Text);
+        answerList.Add(answer13Text);
+        answerList.Add(answer14Text);
 
         int excess = questionList.Count % 4;
         totalPageNumber = questionList.Count / 4;
