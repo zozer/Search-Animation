@@ -207,6 +207,10 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                     {
                         break;
                     }
+                    foreach (MapNode child in currentNode.Connections)
+                    {
+                        child.Connections.Remove(currentNode);
+                    }
                     foreach (MapLine line in canvasArea.GetComponentsInChildren<MapLine>())
                     {
                         if (line.connector.Item1 == currentNode || line.connector.Item2 == currentNode)
@@ -243,6 +247,8 @@ public class MenuHandler : MonoBehaviour, IDragHandler
                                 (line.connector.Item2 == SelectedNode.GetComponent<MapNode>() && line.connector.Item1 == currentNode)
                                 )
                             {
+                                line.connector.Item1.Connections.Remove(line.connector.Item2);
+                                line.connector.Item2.Connections.Remove(line.connector.Item1);
                                 Destroy(line.gameObject);
                             }
                         }
