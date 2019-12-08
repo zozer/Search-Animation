@@ -47,6 +47,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
     GameObject createdLine = null;
     void Start()
     {
+        Screen.fullScreen = false;
         canvasArea.GetComponent<RectTransform>().GetWorldCorners(corners);
         DrawLines();
         //for purpose of if coming from animation scene
@@ -412,6 +413,20 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.unconnectedNode));
             return;
         }
+        //test to see if all nodes exist
+        MapNode start = mapNodes.First(e => e.Data == 's');
+        MapNode end = mapNodes.First(e => e.Data == 'g');
+        TreeNode treeRoot = Instantiate(treeNodePrefab, canvasArea.transform).GetComponent<TreeNode>();
+        treeRoot.Data = start.Data;
+        MakeTree.BuildBM(start, end, start, new List<char>(), treeRoot, treeNodePrefab);
+        IEnumerable<TreeNode> treeNodes = canvasArea.GetComponentsInChildren<TreeNode>();
+        if (mapNodes.Any(e => treeNodes.All(f => f.Data != e.Data)))
+        {
+            _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.unconnectedNode));
+            Destroy(treeRoot.gameObject);
+            return;
+        }
+        
         SaveMapNodes();
         SceneManager.LoadScene("Animation");
     }

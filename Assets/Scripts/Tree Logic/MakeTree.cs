@@ -113,6 +113,10 @@ public class MakeTree : MonoBehaviour
         }*/
     }
 
+    public void BuildBM(MapNode start, MapNode goal, MapNode current, List<char> history, TreeNode root)
+    {
+        BuildBM(start, goal, current, history, root, treeNode);
+    }
     /// <summary>
     /// Traversing the map and creating tree for the British Museum
     /// </summary>
@@ -122,7 +126,7 @@ public class MakeTree : MonoBehaviour
     /// (It must be the same as the starting node at the beginning)</param>
     /// <param name="history">history nodes that had visited in the path</param>
     /// <param name="root">root of the tree that we want to build</param>
-    public void BuildBM(MapNode start, MapNode goal, MapNode current, List<char> history, TreeNode root)
+    public static void BuildBM(MapNode start, MapNode goal, MapNode current, List<char> history, TreeNode root, GameObject treeNode)
     {
         //check if the node is leaf or goal
         if (current.Connections.Count == 0 || current.Data == goal.Data)
@@ -155,7 +159,7 @@ public class MakeTree : MonoBehaviour
                 child.Data = connection.Data;
                 child.Parent = root;
 
-                BuildBM(start, goal, connection, history, child);
+                BuildBM(start, goal, connection, history, child, treeNode);
             }
             history.Remove(currentData);
         }
