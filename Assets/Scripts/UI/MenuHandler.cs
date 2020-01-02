@@ -420,10 +420,11 @@ public class MenuHandler : MonoBehaviour, IDragHandler
         treeRoot.Data = start.Data;
         MakeTree.BuildBM(start, end, start, new List<char>(), treeRoot, treeNodePrefab);
         IEnumerable<TreeNode> treeNodes = canvasArea.GetComponentsInChildren<TreeNode>();
-        if (mapNodes.Any(e => treeNodes.All(f => f.Data != e.Data)))
+        bool ret = mapNodes.Any(e => treeNodes.All(f => f.Data != e.Data));
+        Destroy(treeRoot.gameObject);
+        if (ret)
         {
             _ = StartCoroutine(errorBlock.GetComponent<ErrorBlock>().DisplayError(ErrorBlock.unconnectedNode));
-            Destroy(treeRoot.gameObject);
             return;
         }
         
@@ -481,6 +482,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             Destroy(tempLine.GetComponent<MapLine>());
             LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
             tempRend.SetPositions(new Vector3[] { new Vector3(i, corners[0].y, 0), new Vector3(i, corners[1].y, 0) });
+            tempRend.sortingOrder = 0;
         }
         totalVLines = i - Mathf.RoundToInt(corners[0].x);
         int j;
@@ -490,6 +492,7 @@ public class MenuHandler : MonoBehaviour, IDragHandler
             Destroy(tempLine.GetComponent<MapLine>());
             LineRenderer tempRend = tempLine.GetComponent<LineRenderer>();
             tempRend.SetPositions(new Vector3[] { new Vector3(corners[0].x, j, 0), new Vector3(corners[3].x, j, 0) });
+            tempRend.sortingOrder = 0;
         }
         totalHLines = j - Mathf.RoundToInt(corners[0].y);
     }
